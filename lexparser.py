@@ -9,6 +9,7 @@ reserved = {
     'do':'DO',
     'from':'FROM',
     'to':'TO',
+    'for':'FOR',
     'program':'PROGRAM',
     'main':'MAIN',
     'var':'VAR',
@@ -80,7 +81,7 @@ t_CST_CHAR =  r'("(\\"|[^"])?")|(\'(\\\'|[^\'])?\')'
 t_ignore = " \t\r"
 
 #Comentario
-t_COMMENT_TEXT = r'.*\n'
+t_COMMENT_TEXT = r'%%.*\n'
 
 #ID
 def t_ID(t):
@@ -102,6 +103,17 @@ def t_error(t):
 
 
 lexer = lex.lex()
+
+program = '''program test;
+'''
+
+lex.lex()
+lex.input(program)
+while 1:
+    tok = lex.token()
+    if not tok: break
+    print(tok)
+
 
 import ply.yacc as yacc
 
@@ -151,16 +163,16 @@ def p_ifElse(t):
               | '''
 
 def p_for(t):
-    'for : FOR declaration TO expression DO statement'
+    'for : FOR declaration TO exp DO statement'
 
 def p_comment(t):
-    'comment : PERCENT PERCENT COMMENT_TEXT'
+    'comment : COMMENT_TEXT'
 
 def p_while(t):
-    'while : WHILE LEFTPAR expression RIGHTPAR DO statement'
+    'while : WHILE LEFTPAR exp RIGHTPAR DO statement'
 
 def p_vars(t):
-    'vars : ID varsArray'
+    'vars : ID varsArray SEMICOLON'
 
 def p_varsComa(t):
       '''varsComa : COMA vars
@@ -187,15 +199,15 @@ def p_functionParam(t):
 
 def p_functionType(t):
      '''functionType : FUNCTION PDT
-                    | FUNCTION void'''
+                    | FUNCTION VOID'''
 
 def cst_PDT(t):
         '''cst_prim : CST_INT
-                | CST_DEC
+                | CST_FLOAT
                 | CST_CHAR '''
 
 def p_factor(t):
-     '''factor: LEFTPAR exp RIGHTPAR
+     '''factor : LEFTPAR exp RIGHTPAR
             | cst_PDT
             | module
             | ID'''
@@ -214,7 +226,7 @@ def p_exp(t):
             | term '''
 
 def p_expFunction(t):
-      '''termFunction : PLUS exp
+      '''expFunction : PLUS exp
                     | MINUS exp
                     | ''' 
 
@@ -222,14 +234,14 @@ def p_read(t):
     'read : READ LEFTPAR id_list RIGHTPAR'
 
 def p_id_list(t):
-    'id_list: ID id_listFunction'
+    'id_list : ID id_listFunction'
 
 def p_id_listFunction(t):
         '''id_listFunction : COMA id_list
                         | '''
 
 def p_print(t):
-    'print: PRINT LEFTPAR printFunction RIGHTPAR'
+    'print : PRINT LEFTPAR printFunction RIGHTPAR'
 
 def p_printFunction(t):
         '''printFunction : print_param COMA printFunction2
