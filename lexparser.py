@@ -112,7 +112,7 @@ def p_program(t):
 
 def p_error(t):
     print("Syntax error in '%s'" % t.value)
-    
+
 def p_main(t):
     'main : MAIN LEFTPAR RIGHTPAR LEFTBRACE statement RIGHTBRACE'
 
@@ -250,9 +250,9 @@ def p_statementFunction(t):
      '''statementFunction : statement'''
 
 def p_moduleFunction(t):
-    '''moduleFunction : ID COMA moduleFunction RIGHTPAR
+    '''moduleFunction : ID COMA moduleFunction
                         | ID RIGHTPAR
-                        | exp COMA moduleFunction RIGHTPAR
+                        | exp COMA moduleFunction
                         | exp RIGHTPAR'''
 
 
