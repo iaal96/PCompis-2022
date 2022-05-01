@@ -174,19 +174,19 @@ def p_while(t):
     'while : WHILE LEFTPAR expression2 RIGHTPAR DO statement'
 
 def p_vars(t):
-    'vars : ID varsArray'
+    'vars : ID varsArray varsComa'
 
 def p_varsComa(t):
       '''varsComa : COMA vars
                 | '''
 
 def p_varsMatrix(t):
-     '''varsMatrix : LEFTBRACK CST_INT RIGHTBRACK varsComa
-                  | varsComa '''
+     '''varsMatrix : LEFTBRACK CST_INT RIGHTBRACK
+                  | '''
 
 def p_varsArray(t):
-    '''varsArray : LEFTBRACK CST_INT RIGHTBRACK varsMatrix varsComa
-                 | varsComa '''
+    '''varsArray : LEFTBRACK CST_INT RIGHTBRACK varsMatrix
+                 | '''
 
 def p_function(t):
      '''function : functionType LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
@@ -295,19 +295,17 @@ def p_module(t):
 
 def p_statement(t):
      '''statement : return
-                 | if statementFunction
-                 | comment statementFunction
-                 | read statementFunction
-                 | print statementFunction
-                 | assignment statementFunction
-                 | declaration statementFunction
-                 | module statementFunction
-                 | for statementFunction
-                 | while statementFunction
+                 | if 
+                 | comment 
+                 | read 
+                 | print 
+                 | assignment 
+                 | declaration 
+                 | module 
+                 | for 
+                 | while 
                  | '''
 
-def p_statementFunction(t):
-     'statementFunction : statement'
 
 def p_moduleFunction(t):
     '''moduleFunction : ID COMA moduleFunction
