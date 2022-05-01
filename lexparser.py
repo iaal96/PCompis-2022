@@ -39,9 +39,9 @@ tokens = [
     'EQUAL',
     'SEMICOLON',
     'ID',
-    #'EXCLAMATION',
-    #'QUESTION',
-    #'DOLLARSIGN',
+    'EXCLAMATION',
+    'QUESTION',
+    'DOLLARSIGN',
     'LEFTBRACK',
     'RIGHTBRACK',
     'LEFTBRACE',
@@ -67,9 +67,9 @@ t_COMA = r','
 t_EQUAL = r'='
 t_SEMICOLON = r';'
 t_LEFTBRACK = r'\['
-#t_EXCLAMATION = r'!'
-#t_QUESTION = r'\?'
-#t_DOLLARSIGN = r'\$'
+t_EXCLAMATION = r'!'
+t_QUESTION = r'\?'
+t_DOLLARSIGN = r'\$'
 t_RIGHTBRACK = r'\]'
 t_LEFTBRACE = r'\{'
 t_RIGHTBRACE = r'\}'
@@ -99,20 +99,15 @@ def t_newline(t):
 
 #Error
 def t_error(t):
-    print("Ilegal character '%s' " % t.value[0])
+    print("Illegal character '%s' in line %d" % (t.value[0], t.lexer.lineno))
     t.lexer.skip(1)
+    exit(0)
 
 
 lexer = lex.lex()
 
-program = ''
-program test;
-var int i[1][1], j[1], k;
-main() {
-    i = 1;
-    print("hello world");
-}
-
+f = open('test.txt','r')
+program = f.read()
 lex.lex()
 #lex.input(program)
 #while 1:
@@ -127,7 +122,7 @@ def p_program(t):
 
 
 def p_error(t):
-    print("Syntax error in '%s'" % t.value)
+   print("Syntax error: Unexpected token '%s' in line %d" % (t.value, t.lexer.lineno))
 
 def p_main(t):
     'main : MAIN LEFTPAR RIGHTPAR LEFTBRACE statement RIGHTBRACE'
@@ -167,7 +162,7 @@ def p_ifElse(t):
               | '''
 
 def p_for(t):
-    'for : FOR declaration TO expression2 DO statement'
+    'for : FOR forDeclaration TO expression2 DO statement'
 
 def p_forDeclaration(t):
     'forDeclaration : ID EQUAL CST_INT'
@@ -216,7 +211,8 @@ def cst_PDT(t):
 
 def p_Expression2(t):
     '''Expression2 : Expression3 Expression22 Expression3
-                       | Expression3 '''
+                       | Expression3 
+                       | Expression3 matrixOperator'''
 
 def p_Expression22(t):
     '''Expression22 : AND
@@ -230,6 +226,12 @@ def p_Expression33(t):
     '''Expression33 : GT
                          | LT
                          | NOTEQUAL '''
+
+def p_matrixOperator(t):
+    '''matrixOperator : EXCLAMATION
+                      | QUESTION
+                      | DOLLARSIGN
+                      | '''
 
 def p_exp(t):
     '''exp : term expFunction
