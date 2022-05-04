@@ -1,13 +1,13 @@
 #Definicion de PDTs
 type_dict = {
-    'void' : 0,
-    'boolean' : 1,
-    'int' : 2,
-    'decimal' : 3,
-    'string' : 4,
+    'int' : 0,
+    'float' : 1,
+    'char': 2,
 }
 inv_type_dict = {
-    v: k for k, v in type_dict.items()
+   0 : 'int',
+   1 : 'float',
+   2 : 'char'
 }
 
 #Helper classes
@@ -37,7 +37,7 @@ class Stack(object):
         return len(self.values)
     
     def pprint(self):
-        print self.values
+        print(self.values)
 
     def inStack(self,var_name):
         return var_name in self.values
@@ -52,7 +52,7 @@ class Queue(object):
         return self.values == []
     
     def pprint(self):
-        print self.values
+        print(self.values)
 
     def size(self):
         return len(self.values)
