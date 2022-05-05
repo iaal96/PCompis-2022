@@ -150,8 +150,10 @@ def p_varsArray(t):
 def p_function(t):
     '''function : functionType ID addToDir LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
                 | functionType ID addToDir LEFTPAR RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE '''
-    #Resetear scope a global cuando se salga del scope de la funcion
+    #Resetear scope a global cuando se salga del scope de la funcion, eliminar varTable y referenciar en functionDir
     global currentScope
+    #del variableTable[currentScope]
+    #del functionDir[currentScope]["vars"]
     currentScope = "global"
 
 def p_param(t):
