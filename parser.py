@@ -1,12 +1,37 @@
 import lexer as lexer
 import ply.yacc as yacc
-
+import queue
 tokens = lexer.tokens
 
 functionDir = {}
-currentScope = ""
-currentType = "program"
 variableTable = {}
+semanticCube = {}
+operators = []
+operands = []
+types = []
+quadruples = []
+temp = 1
+ty = {
+    0: "int",
+    1: "float",
+    2: "char"
+}
+ops = ["+","-","*","/"]
+#print("Cubo Semantico: ")
+for i in ty:
+    for j in ty:
+        for k in ops:
+            if i > j:
+                semanticCube[(ty[i], ty[j], k)] = ty[i]
+            else:
+                semanticCube[(ty[i], ty[j], k)] = ty[j]
+            if k != "+" and (ty[i] == "char" or ty[j] == "char"):
+                semanticCube[(ty[i], ty[j], k)] = "error"
+                  # print("%s %s %s = %s" % (types[i], k, types[j], semanticCube[(types[i], types[j], k)]))
+
+currentScope = "global"
+currentType = "program"
+#Ejemplo functionDir
 '''
     "global": {
         "type": "void",
@@ -16,7 +41,6 @@ variableTable = {}
                                             }
                                             ...
     }
-
     "main": {
         "type": "void",
         "vars": variableTable["main"] -> "c": {
@@ -26,23 +50,25 @@ variableTable = {}
                                          ...
     }
 '''
+#Cubo Semantico
+'''
+    keys are tuples => (operand1, operand2, operator)
+    semanticCube[(op1, op2, op)] => int/float/char/error
+    semanticCube[("int", "int", "+")] => "int"
+    semanticCube[("char", "float", "*")] => "error"
+'''
+
 
 def p_program(t):
     'program : PROGRAM ID globalTable SEMICOLON programVars programFunc main'
     print("Code OK")
-    print()
-    for i in functionDir:
-        print("\tfunction name: %s" % i)
-        print("\t\ttype: %s" % functionDir[i]["type"])
-        print("\t\tvars: %s" % functionDir[i]["vars"])
-        print()
+    print(operands)
+    print(types)
+    print(operators)
     variableTable.clear()
 
-def p_progVT(t):
+def p_globalTable(t):
     'globalTable : '
-    #currentScope es global por default
-    global currentScope
-    currentScope = "global"
     #Inicializar variableTable para global y establecer nombre y tipo a program
     variableTable[currentScope] = {}
     variableTable[currentScope][t[-1]] = {"type": "program"}
@@ -177,10 +203,23 @@ def p_functionType(t):
      '''functionType : FUNCTION PDT
                     | FUNCTION VOID '''
 
-def cst_PDT(t):
-        '''cst_PDT : CST_INT
-                | CST_FLOAT
-                | CST_CHAR '''
+def p_cst_PDT(t):
+        '''cst_PDT : CST_INT addTypeInt
+                | CST_FLOAT addTypeFloat
+                | CST_CHAR addTypeChar'''
+        t[0] = t[1]
+
+def p_addTypeInt(t):
+    'addTypeInt : '
+    types.append("int")
+
+def p_addTypeFloat(t):
+    'addTypeFloat : '
+    types.append("float")
+
+def p_addTypeChar(t):
+    'addTypeChar : '
+    types.append("char")
 
 def p_addToDir(t):
     'addToDir : '
@@ -202,13 +241,13 @@ def p_addToDir(t):
         functionDir[currentScope]["vars"] = variableTable[currentScope]
 
 def p_Expression2(t):
-    '''Expression2 : Expression3 Expression22 Expression3
+    '''Expression2 : Expression3 Expression22 Expression3 generateQuad
                        | Expression3 
-                       | Expression3 matrixOperator'''
+                       | Expression3 matrixOperator generateQuadMat'''
 
 def p_Expression22(t):
     '''Expression22 : AND
-                         | OR '''
+                    | OR '''
 
 def p_Expression3(t):
     '''Expression3 : exp Expression33 exp
@@ -216,8 +255,16 @@ def p_Expression3(t):
 
 def p_Expression33(t):
     '''Expression33 : GT
-                         | LT
-                         | NOTEQUAL '''
+                    | LT
+                    | NOTEQUAL '''
+
+def p_generateQuad(t):
+    'generateQuad : '
+    # quadruples.append((t[-3], t[-1], t[-2]))
+
+def p_generateQuadMat(t):
+    'generateQuadMat : '
+    # quadruples.append((t[-2], None, t[-1]))
 
 def p_matrixOperator(t):
     '''matrixOperator : EXCLAMATION
@@ -246,12 +293,21 @@ def p_term(t):
 def p_termFunction(t):
         '''termFunction : MULTIPLY term
                     | DIVIDE term '''
+        operators.append(t[1])
 
 def p_factor(t):
     '''factor : LEFTPAR hyperExpression RIGHTPAR
-              | cst_prim
+              | cst_PDT addOp
               | module
-              | ID '''
+              | ID addOp addTypeId '''
+
+def p_addOp(t):
+    'addOp : '
+    operands.append(t[-1])
+
+def p_addTypeId(t):
+    'addTypeId: '
+    types.append(variableTable[currentScope][t[-2]]["type"])
 
 def p_exp(t):
         '''exp : term expFunction
