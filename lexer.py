@@ -28,6 +28,7 @@ tokens = [
     'DIVIDE',
     'MULTIPLY',
     'NOTEQUAL',
+    'ISEQUAL',
     'GT',
     'LT',
     'AND',
@@ -57,6 +58,7 @@ t_MINUS = r'-'
 t_DIVIDE = r'/'
 t_MULTIPLY = r'\*'
 t_NOTEQUAL = r'<>'
+t_ISEQUAL = r'=='
 t_GT = r'>'
 t_LT = r'<'
 t_AND = r'&'

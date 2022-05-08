@@ -1,93 +1,43 @@
 import lexer as lexer
 import ply.yacc as yacc
-import queue
+from EstructuraDatos import quadruples, types, operands, operators, variableTable
+from EstructuraDatos import functionDir, temp, currentScope, currentType, semanticCube
+
 tokens = lexer.tokens
-
-functionDir = {}
-variableTable = {}
-semanticCube = {}
-operators = []
-operands = []
-types = []
-quadruples = []
-temp = 1
-ty = {
-    0: "int",
-    1: "float",
-    2: "char"
-}
-ops = ["+","-","*","/"]
-#print("Cubo Semantico: ")
-for i in ty:
-    for j in ty:
-        for k in ops:
-            if i > j:
-                semanticCube[(ty[i], ty[j], k)] = ty[i]
-            else:
-                semanticCube[(ty[i], ty[j], k)] = ty[j]
-            if k != "+" and (ty[i] == "char" or ty[j] == "char"):
-                semanticCube[(ty[i], ty[j], k)] = "error"
-                  # print("%s %s %s = %s" % (types[i], k, types[j], semanticCube[(types[i], types[j], k)]))
-
-currentScope = "global"
-currentType = "program"
-#Ejemplo functionDir
-'''
-    "global": {
-        "type": "void",
-        "vars": variableTable["global"] -> "i": {
-                                                "type": "int"
-                                                "value": 1
-                                            }
-                                            ...
-    }
-    "main": {
-        "type": "void",
-        "vars": variableTable["main"] -> "c": {
-                                              "type": "char"
-                                              "value": "h"
-                                         }
-                                         ...
-    }
-'''
-#Cubo Semantico
-'''
-    keys are tuples => (operand1, operand2, operator)
-    semanticCube[(op1, op2, op)] => int/float/char/error
-    semanticCube[("int", "int", "+")] => "int"
-    semanticCube[("char", "float", "*")] => "error"
-'''
 
 
 def p_program(t):
-    'program : PROGRAM ID globalTable SEMICOLON programVars programFunc main'
+    'program : PROGRAM ID programA1 SEMICOLON programVars programFunc main'
     print("Code OK")
-    print(operands)
-    print(types)
-    print(operators)
+    operands.print()
+    types.print()
+    operators.print()
+    quadruples.print()
     variableTable.clear()
 
+#Global scope
 def p_globalTable(t):
-    'globalTable : '
+    'programA1 : '
     #Inicializar variableTable para global y establecer nombre y tipo a program
     variableTable[currentScope] = {}
     variableTable[currentScope][t[-1]] = {"type": "program"}
     #Inicializar functionDir para global scope
     functionDir[currentScope] = {}
     #Establecer tipo y vars como referencia a variableTable[global]
-    functionDir[currentScope]["type"] = "void"
-    functionDir[currentScope]["vars"] = variableTable[currentScope]
+    functionDir[ds.currentScope]["type"] = "void"
+    functionDir[ds.currentScope]["vars"] = variableTable[currentScope]
     
 
 
 def p_error(t):
    print("Syntax error: Unexpected token '%s' in line %d" % (t.value, t.lexer.lineno))
+   exit(0)
 
 def p_main(t):
-    'main : mainScope MAIN LEFTPAR RIGHTPAR LEFTBRACE statement RIGHTBRACE'
+    'main : mainA1 MAIN LEFTPAR RIGHTPAR LEFTBRACE statement RIGHTBRACE'
 
-def p_mainScope(t):
-    'mainScope : '
+def p_mainTable(t):
+    'mainA1 : '
     global currentScope
     variableTable[currentScope]["main"] = {"type": "void"}
     currentScope = "main"
@@ -108,6 +58,18 @@ def p_programFunc(t):
 
 def p_assignment(t):
     'assignment : ID EQUAL expression2 SEMICOLON'
+    if t[1] in variableTable[currentScope]:
+        if types.pop() == variableTable[currentScope][t[1]]["type"]:
+            quadruples.push(("=", operands.pop(), None, t[1]))
+        else:
+            print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
+            exit(0)
+    elif t[1] in variableTable["global"]:
+        if types.pop() == variableTable["global"][t[1]]["type"]:
+            quadruples.push(("=", operands.pop(), None, t[1]))
+        else:
+            print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
+            exit(0)
 
 def p_declaration(t):
     'declaration : VAR declarationPDT'
@@ -125,6 +87,7 @@ def p_PDT(t):
 # Al indicar tipo, cambiar currentType por declaracion
     global currentType
     currentType = t[1]
+    
 
 def p_return(t):
     'return : RETURN LEFTPAR expression2 RIGHTPAR SEMICOLON'
@@ -149,12 +112,12 @@ def p_while(t):
     'while : WHILE LEFTPAR expression2 RIGHTPAR LEFTBRACE DO statement RIGHTBRACE'
 
 def p_vars(t):
-    'vars : ID addtoTable varsArray varsComa'
+    'vars : ID varsA1 varsArray varsComa'
 
 def p_addToTable(t):
-    'addToTable : '
+    'varsA1 : '
     #Si el ID actual existe en scope, lanzar error
-    if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
+    if t[-1] in variableTable[currentScope]:
         print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
         exit(0)
     else:
@@ -174,8 +137,8 @@ def p_varsArray(t):
                  | '''
 
 def p_function(t):
-    '''function : functionType ID addToDir LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
-                | functionType ID addToDir LEFTPAR RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE '''
+    '''function : functionType ID functionA1 LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
+                | functionType ID functionA1 LEFTPAR RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE '''
     #Resetear scope a global cuando se salga del scope de la funcion, eliminar varTable y referenciar en functionDir
     global currentScope
     #del variableTable[currentScope]
@@ -183,14 +146,14 @@ def p_function(t):
     currentScope = "global"
 
 def p_param(t):
-    'param: PDT ID addFuncParams functionParam'
+    'param: PDT ID paramA1 functionParam'
 
 def p_functionParam(t):
       '''functionParam : COMA param
                      | '''
 
 def p_addFuncParams(t):
-    'addFuncParams : '
+    'paramA1 : '
     # Si parametro de la funcion ya existe en el scope (o global),dar error
     if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
         print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
@@ -201,34 +164,35 @@ def p_addFuncParams(t):
 
 def p_functionType(t):
      '''functionType : FUNCTION PDT
-                    | FUNCTION VOID '''
+                    | FUNCTION VOID functionTypeA1 '''
 
 def p_cst_PDT(t):
-        '''cst_PDT : CST_INT addTypeInt
-                | CST_FLOAT addTypeFloat
-                | CST_CHAR addTypeChar'''
+        '''cst_PDT : CST_INT cstprimA1
+                | CST_FLOAT cstprimA2
+                | CST_CHAR cstprimA3'''
         t[0] = t[1]
 
 def p_addTypeInt(t):
-    'addTypeInt : '
-    types.append("int")
+    'cstprimA1 : '
+    types.push("int")
 
 def p_addTypeFloat(t):
-    'addTypeFloat : '
-    types.append("float")
+    'cstprimA2 : '
+    types.push("float")
 
 def p_addTypeChar(t):
-    'addTypeChar : '
-    types.append("char")
+    'cstprimA3 : '
+    types.push("char")
 
 def p_addToDir(t):
-    'addToDir : '
-    global currentScope
+    'functionA1 : '
     # Si la funcion ya existe en scope global, lanzar error
     if t[-1] in functionDir["global"] or t[-1] in variableTable["global"]:
         print("Error: redefinition of '%s' in line %d." % (t[-1], t.lexer.lineno))
         exit(0)
     else:
+        global currentScope
+        global currentType
         # Agregar funcion a variableTable de currentScope
         variableTable[currentScope][t[-1]] = {"type": currentType}
         # Cambiar scope a nuevo id de la funcion
@@ -241,73 +205,154 @@ def p_addToDir(t):
         functionDir[currentScope]["vars"] = variableTable[currentScope]
 
 def p_Expression2(t):
-    '''Expression2 : Expression3 Expression22 Expression3 generateQuad
-                       | Expression3 
-                       | Expression3 matrixOperator generateQuadMat'''
+    '''Expression2 : Expression3 Exp2A1 Expression22 Expression2Nested
+                       | Expression3 opMatrix 
+                       | Expression3 Exp2A1'''
+
+def p_Expression2Nested(t):
+    '''Expression2Nested : Expression3 Exp2A1 Expression22 Expression2Nested
+                             | Expression3 Exp2A1'''
+
+
+def p_opConsumeExp2(t):
+    'Exp2A1 : '
+    global temp
+    if operators.size() != 0:
+        if operators.peek() == "|" or operators.peek() == "&":
+            rOp = operands.pop()
+            lOp = operands.pop()
+            oper = operators.pop()
+            rType = types.pop()
+            lType = types.pop()
+            resType = semanticCube[(lType, rType, oper)]
+            if resType != "error":
+                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                operands.push("t%d"%temp)
+                types.push(resType)
+                temp += 1
+            else:
+                print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
+                exit(0)
 
 def p_Expression22(t):
-    '''Expression22 : AND
-                    | OR '''
+    '''Expression22 : AND addOperator
+                    | OR addOperator'''
 
 def p_Expression3(t):
-    '''Expression3 : exp Expression33 exp
-                       | exp '''
+    '''Expression3 : exp Exp3A1 Expression33 exp Exp3A1
+                       | exp Exp3A1'''
 
 def p_Expression33(t):
-    '''Expression33 : GT
-                    | LT
-                    | NOTEQUAL '''
+    '''Expression33 : GT addOperator
+                    | LT addOperator
+                    | NOTEQUAL addOperator
+                    | ISEQUAL addOperator'''
 
-def p_generateQuad(t):
-    'generateQuad : '
-    # quadruples.append((t[-3], t[-1], t[-2]))
+def p_opConsumeExp3(t):
+    'Exp3A1 : '
+    global temp
+    if operators.size() != 0:
+        if operators.peek() == ">" or operators.peek() == "<" or operators.peek() == "<>" or operators.peek == "==":
+            rOp = operands.pop()
+            lOp = operands.pop()
+            oper = operators.pop()
+            rType = types.pop()
+            lType = types.pop()
+            resType = semanticCube[(lType, rType, oper)]
+            if resType != "error":
+                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                quadruples.peek()
+                operands.push("t%d"%temp)
+                types.push(resType)
+                temp += 1
+            else:
+                print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
+                exit(0)
 
-def p_generateQuadMat(t):
-    'generateQuadMat : '
-    # quadruples.append((t[-2], None, t[-1]))
-
-def p_matrixOperator(t):
-    '''matrixOperator : EXCLAMATION
-                      | QUESTION
-                      | DOLLARSIGN
-                      | '''
+def p_opMatrix(t):
+    '''opMatrix : EXCLAMATION addOperator
+                | QUESTION addOperator
+                | DOLLARSIGN addOperator'''
 
 def p_exp(t):
-    '''exp : term expFunction
-           | term '''
+    '''exp : term termA1 expFunction
+           | term termA1'''
+
+def p_opConsumeExp(t):
+    'termA1 : '
+    global temp
+    if operators.size() != 0:
+        if operators.peek() == "+" or operators.peek() == "-":
+            rOp = operands.pop()
+            lOp = operands.pop()
+            oper = operators.pop()
+            rType = types.pop()
+            lType = types.pop()
+            resType = semanticCube[(lType, rType, oper)]
+            if resType != "error":
+                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                operands.push("t%d"%temp)
+                types.push(resType)
+                temp += 1
+            else:
+                print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
+                exit(0)
 
 def p_expFunction(t):
-    '''expFunction : PLUS exp
-                   | MINUS exp '''
+    '''expFunction : PLUS addOperator exp
+                   | MINUS addOperator exp '''
 
 def p_setVoid(t):
-    'setVoid : '
+    'functionTypeA1 : '
     # Establecer void como currentType
     global currentType
     currentType = t[-1]
 
 def p_term(t):
-        '''term : factor termFunction
-            | factor '''
+        '''term : factor factorA1 termFunction
+            | factor factorA1'''
+
+def p_opConsumeTerm(t):
+    'factorA1 : '
+    global temp
+    if operators.size() != 0:
+        if operators.peek() == "*" or operators.peek() == "/":
+            rOp = operands.pop()
+            lOp = operands.pop()
+            oper = operators.pop()
+            rType = types.pop()
+            lType = types.pop()
+            resType = semanticCube[(lType, rType, oper)]
+            if resType != "error":
+                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                operands.push("t%d"%temp)
+                types.push(resType)
+                temp += 1
+            else:
+                print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
+                exit(0)
 
 def p_termFunction(t):
-        '''termFunction : MULTIPLY term
-                    | DIVIDE term '''
-        operators.append(t[1])
+        '''termFunction : MULTIPLY addOperator term
+                    | DIVIDE addOperator term '''
+
+def p_addOperator(t):
+    'addOperator : '
+    operators.push(t[-1])
 
 def p_factor(t):
-    '''factor : LEFTPAR hyperExpression RIGHTPAR
-              | cst_PDT addOp
+    '''factor : LEFTPAR Expression2 RIGHTPAR
+              | cst_PDT addOperand
               | module
-              | ID addOp addTypeId '''
+              | ID addOperand addTypeId '''
 
-def p_addOp(t):
-    'addOp : '
-    operands.append(t[-1])
+def p_addOperand(t):
+    'addOperand : '
+    operands.push(t[-1])
 
 def p_addTypeId(t):
     'addTypeId: '
-    types.append(variableTable[currentScope][t[-2]]["type"])
+    types.push(variableTable[currentScope][t[-2]]["type"])
 
 def p_exp(t):
         '''exp : term expFunction
@@ -333,14 +378,14 @@ def p_print(t):
 
 def p_printFunction(t):
         '''printFunction : print_param COMA printFunction2
-                     | print_param'''
+                     | print_param '''
 
 def p_printFunction2(t):
         'printFunction2 : printFunction'
 
 def p_print_param(t):
      '''print_param : expression2
-                 | CST_STRING'''
+                 | CST_STRING '''
 
 def p_module(t):
      'module : ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON'
