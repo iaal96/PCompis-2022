@@ -5,6 +5,7 @@ reserved = {
     'if':'IF',
     'then':'THEN',
     'else':'ELSE',
+    'do':'DO',
     'while':'WHILE',
     'to':'TO',
     'for':'FOR',
@@ -104,8 +105,5 @@ def t_error(t):
     exit(0)
 
 lexer = lex.lex()
-
-f = open('test.txt','r')
-program = f.read()
 
 lex.lex()

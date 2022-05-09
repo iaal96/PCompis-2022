@@ -32,7 +32,7 @@ semanticCube = {}
 operators = Stack()
 operands = Stack()
 types = Stack()
-quadruples = Stack()
+quadruples_main = Stack()
 temp = 1
 ty = {
     0: "int",

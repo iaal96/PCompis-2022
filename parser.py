@@ -1,7 +1,8 @@
 import lexer as lexer
 import ply.yacc as yacc
-from EstructuraDatos import quadruples, types, operands, operators, variableTable
+from EstructuraDatos import quadruples_main, types, operands, operators, variableTable
 from EstructuraDatos import functionDir, temp, currentScope, currentType, semanticCube
+from quadruples import *
 
 tokens = lexer.tokens
 
@@ -12,7 +13,10 @@ def p_program(t):
     operands.print()
     types.print()
     operators.print()
-    quadruples.print()
+    print ("QUADS")
+    Quadruples.print_all()
+    print ("QUADS MAIN")
+    #quadruples_main.print()
     variableTable.clear()
 
 #Global scope
@@ -24,8 +28,8 @@ def p_globalTable(t):
     #Inicializar functionDir para global scope
     functionDir[currentScope] = {}
     #Establecer tipo y vars como referencia a variableTable[global]
-    functionDir[ds.currentScope]["type"] = "void"
-    functionDir[ds.currentScope]["vars"] = variableTable[currentScope]
+    functionDir[currentScope]["type"] = "void"
+    functionDir[currentScope]["vars"] = variableTable[currentScope]
     
 
 
@@ -57,16 +61,20 @@ def p_programFunc(t):
                    | '''
 
 def p_assignment(t):
-    'assignment : ID EQUAL expression2 SEMICOLON'
+    'assignment : ID EQUAL Expression2 SEMICOLON'
     if t[1] in variableTable[currentScope]:
         if types.pop() == variableTable[currentScope][t[1]]["type"]:
-            quadruples.push(("=", operands.pop(), None, t[1]))
+            #quadruples_main.push(("=", operands.pop(), None, t[1]))
+            temp_quad = Quadruple("=", operands.pop(), None, t[1])
+            Quadruples.push_quad(temp_quad)
         else:
             print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
             exit(0)
     elif t[1] in variableTable["global"]:
         if types.pop() == variableTable["global"][t[1]]["type"]:
-            quadruples.push(("=", operands.pop(), None, t[1]))
+            #quadruples_main.push(("=", operands.pop(), None, t[1]))
+            temp_quad = Quadruple("=", operands.pop(), None, t[1])
+            Quadruples.push_quad(temp_quad)
         else:
             print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
             exit(0)
@@ -76,7 +84,7 @@ def p_declaration(t):
 
 #PDT=Primitive Data Type
 def p_declarationPDT(t):
-        '''declarationPDT : primitive vars SEMICOLON declarationPDT
+        '''declarationPDT : PDT vars SEMICOLON declarationPDT
                        | '''
 
 def p_PDT(t):
@@ -85,22 +93,22 @@ def p_PDT(t):
                  | CHAR '''
         
 # Al indicar tipo, cambiar currentType por declaracion
-    global currentType
-    currentType = t[1]
+    #global currentType
+    #currentType = t[1]
     
 
 def p_return(t):
-    'return : RETURN LEFTPAR expression2 RIGHTPAR SEMICOLON'
+    'return : RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON'
 
 def p_if(t):
-    'if : IF LEFTPAR expression2 RIGHTPAR THEN LEFTBRACE statement RIGHTBRACE ifElse'
+    'if : IF LEFTPAR Expression2 RIGHTPAR THEN LEFTBRACE statement RIGHTBRACE ifElse'
 
 def p_ifElse(t):
      '''ifElse : ELSE LEFTBRACE statement RIGHTBRACE
               | '''
 
 def p_for(t):
-    'for : FOR forDeclaration TO expression2 LEFTBRACE statement RIGHTBRACE'
+    'for : FOR forDeclaration TO Expression2 LEFTBRACE statement RIGHTBRACE'
 
 def p_forDeclaration(t):
     'forDeclaration : ID EQUAL CST_INT'
@@ -109,7 +117,7 @@ def p_comment(t):
     'comment : COMMENT_TEXT'
 
 def p_while(t):
-    'while : WHILE LEFTPAR expression2 RIGHTPAR LEFTBRACE DO statement RIGHTBRACE'
+    'while : WHILE LEFTPAR Expression2 RIGHTPAR LEFTBRACE DO statement RIGHTBRACE'
 
 def p_vars(t):
     'vars : ID varsA1 varsArray varsComa'
@@ -146,7 +154,7 @@ def p_function(t):
     currentScope = "global"
 
 def p_param(t):
-    'param: PDT ID paramA1 functionParam'
+    'param : PDT ID paramA1 functionParam'
 
 def p_functionParam(t):
       '''functionParam : COMA param
@@ -226,7 +234,9 @@ def p_opConsumeExp2(t):
             lType = types.pop()
             resType = semanticCube[(lType, rType, oper)]
             if resType != "error":
-                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                #quadruples_main.push((oper, lOp, rOp, "t%d"%temp))
+                temp_quad = Quadruple(oper, lOp, rOp, "t"+str(temp))
+                Quadruples.push_quad(temp_quad)
                 operands.push("t%d"%temp)
                 types.push(resType)
                 temp += 1
@@ -260,8 +270,9 @@ def p_opConsumeExp3(t):
             lType = types.pop()
             resType = semanticCube[(lType, rType, oper)]
             if resType != "error":
-                quadruples.push((oper, lOp, rOp, "t%d"%temp))
-                quadruples.peek()
+                #quadruples_original.push((oper, lOp, rOp, "t%d"%temp))
+                temp_quad = Quadruple(oper, lOp, rOp, "t"+str(temp))
+                Quadruples.push_quad(temp_quad)
                 operands.push("t%d"%temp)
                 types.push(resType)
                 temp += 1
@@ -290,7 +301,9 @@ def p_opConsumeExp(t):
             lType = types.pop()
             resType = semanticCube[(lType, rType, oper)]
             if resType != "error":
-                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                #quadruples_main.push((oper, lOp, rOp, "t%d"%temp))
+                temp_quad = Quadruple(oper, lOp, rOp, "t"+str(temp))
+                Quadruples.push_quad(temp_quad)
                 operands.push("t%d"%temp)
                 types.push(resType)
                 temp += 1
@@ -324,7 +337,9 @@ def p_opConsumeTerm(t):
             lType = types.pop()
             resType = semanticCube[(lType, rType, oper)]
             if resType != "error":
-                quadruples.push((oper, lOp, rOp, "t%d"%temp))
+                #quadruples_main.push((oper, lOp, rOp, "t%d"%temp))
+                temp_quad = Quadruple(oper, lOp, rOp, "t"+str(temp))
+                Quadruples.push_quad(temp_quad)
                 operands.push("t%d"%temp)
                 types.push(resType)
                 temp += 1
@@ -351,7 +366,7 @@ def p_addOperand(t):
     operands.push(t[-1])
 
 def p_addTypeId(t):
-    'addTypeId: '
+    'addTypeId : '
     if t[-2] in variableTable[currentScope]:
         types.push(variableTable[currentScope][t[-2]]["type"])
     elif t[-2] in variableTable["global"]:
@@ -359,14 +374,6 @@ def p_addTypeId(t):
     else:
         print("Error: undefined '%s' used in line %d" % (t[-1], t.lexer.lineno))
 
-def p_exp(t):
-        '''exp : term expFunction
-            | term '''
-
-def p_expFunction(t):
-      '''expFunction : PLUS exp
-                    | MINUS exp
-                    | ''' 
 
 def p_read(t):
     'read : READ LEFTPAR id_list RIGHTPAR SEMICOLON'
@@ -381,7 +388,9 @@ def p_id_listFunction(t):
 def p_addRead(t):
     'addRead : '
     if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
-        quadruples.push(("read", None, None, t[-1]))
+        #quadruples_main.push(("read", None, None, t[-1]))
+        temp_quad = Quadruple("read", None, None, t[-1])
+        Quadruples.push_quad(temp_quad)
     else:
         print("Error: undefined '%s' used in line %d" % (t[-1], t.lexer.lineno))
 
@@ -397,17 +406,21 @@ def p_printFunction2(t):
 
 def p_addPrint(t):
     'addPrint : '
-    quadruples.push(("print", None, None, operands.pop()))
+    #quadruples_main.push(("print", None, None, operands.pop()))
+    temp_quad = Quadruple("print", None, None, operands.pop())
+    Quadruples.push_quad(temp_quad)
     types.pop()
 
 
 def p_print_param(t):
-     '''print_param : expression2 addPrint
+     '''print_param : Expression2 addPrint
                  | CST_STRING addPrintString'''
 
 def p_addPrintString(t):
     'addPrintString : '
-    quadruples.push(("print", None, None, t[-1]))
+    #quadruples_main.push(("print", None, None, t[-1]))
+    temp_quad = Quadruple("print", None, None, t[-1])
+    Quadruples.push_quad(temp_quad)
 
 def p_module(t):
      'module : ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON'
@@ -428,12 +441,19 @@ def p_statement(t):
 
 def p_moduleFunction(t):
     '''moduleFunction : ID COMA moduleFunction
-                        | expression2 COMA moduleFunction
-                        | expression2 RIGHTPAR
+                        | Expression2 COMA moduleFunction
+                        | Expression2 RIGHTPAR
                         | '''
 
-f = open('test.txt','r')
+import sys
+
+
+if len(sys.argv) > 1:
+	f = open(sys.argv[1], "r")
+else:
+	f = open("prog.txt", "r")
 program = f.read()
+
 parser = yacc.yacc()
 
-parser = parse(program)
+parser.parse(program)
