@@ -352,7 +352,12 @@ def p_addOperand(t):
 
 def p_addTypeId(t):
     'addTypeId: '
-    types.push(variableTable[currentScope][t[-2]]["type"])
+    if t[-2] in variableTable[currentScope]:
+        types.push(variableTable[currentScope][t[-2]]["type"])
+    elif t[-2] in variableTable["global"]:
+        types.push(variableTable["global"][t[-2]]["type"])
+    else:
+        print("Error: undefined '%s' used in line %d" % (t[-1], t.lexer.lineno))
 
 def p_exp(t):
         '''exp : term expFunction
@@ -367,11 +372,18 @@ def p_read(t):
     'read : READ LEFTPAR id_list RIGHTPAR SEMICOLON'
 
 def p_id_list(t):
-    'id_list : ID id_listFunction'
+    'id_list : ID addRead id_listFunction'
 
 def p_id_listFunction(t):
         '''id_listFunction : COMA id_list
                     | '''
+
+def p_addRead(t):
+    'addRead : '
+    if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
+        quadruples.push(("read", None, None, t[-1]))
+    else:
+        print("Error: undefined '%s' used in line %d" % (t[-1], t.lexer.lineno))
 
 def p_print(t):
     'print : PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON'
@@ -383,9 +395,19 @@ def p_printFunction(t):
 def p_printFunction2(t):
         'printFunction2 : printFunction'
 
+def p_addPrint(t):
+    'addPrint : '
+    quadruples.push(("print", None, None, operands.pop()))
+    types.pop()
+
+
 def p_print_param(t):
-     '''print_param : expression2
-                 | CST_STRING '''
+     '''print_param : expression2 addPrint
+                 | CST_STRING addPrintString'''
+
+def p_addPrintString(t):
+    'addPrintString : '
+    quadruples.push(("print", None, None, t[-1]))
 
 def p_module(t):
      'module : ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON'
