@@ -1,4 +1,4 @@
 # Proyecto Compiladores
 Ivan Anguiano A00817460
  Proyecto Compiladores FJ22
-# Avance: Declaracion de Tokens, Reglas Sintacticas, Errores y reglas de Funciones y Modulos.
+# Avance: Cubo semantico, Tabla de Variables y Directorio de procedimiento hechos. Cuadruplos de estatutos lineales y algunos condicionales (if/else) . Falta while y for

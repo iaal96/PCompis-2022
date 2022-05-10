@@ -113,14 +113,6 @@ class Quadruples(object):
 		return cls.jump_stack.peek()
 
 	@classmethod
-	def print_jump_stack(cls):
-		"""print jump stack
-		
-		Imprime jump stack
-		"""
-		cls.jump_stack.print()
-
-	@classmethod
 	def print_all(cls):
 		"""Imprime todos los cuadruplos de la lista"""
 		print("Quads ===============================")
