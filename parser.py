@@ -180,7 +180,7 @@ def p_updateQuadFor(t):
 	Quadruples.update_jump_quad(tmp_end, tmp_count)
 
 def p_forAssignment(t):
-	'forAssignment : ID EQUAL CST_INT cstPDTA1'
+	'forAssignment : ID EQUAL CST_INT addTypeInt'
 	if t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
 			temp_quad = Quadruple("=", t[3], '_', t[1])
@@ -229,7 +229,7 @@ def p_endLoop(t):
 	'endLoop : '
 	false_jump = Quadruples.pop_jump()
 	return_jump = Quadruples.pop_jump()
-	tmp_quad = Quadruple("GOTO", None, None, return_jump-1)
+	tmp_quad = Quadruple("GOTO", "_", "_", return_jump-1)
 	Quadruples.push_quad(tmp_quad)
 	next_id = Quadruples.next_id
 	Quadruples.update_jump_quad(false_jump, next_id)
@@ -242,10 +242,10 @@ def p_while(t):
 	'while : WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop'
 
 def p_vars(t):
-	'vars : ID varsA1 varsArray varsComa'
+	'vars : ID addVarsToTable varsArray varsComa'
 
-def p_addToTable(t):
-	'varsA1 : '
+def p_addVarsToTable(t):
+	'addVarsToTable : '
 	#Si el ID ya existe en el scope o global, dar error
 	if t[-1] in variableTable[currentScope]:
 		print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
@@ -267,8 +267,8 @@ def p_varsArray(t):
 				 | '''
 
 def p_function(t):
-    '''function : functionType ID functionA1 LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
-                | functionType ID functionA1 LEFTPAR RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE '''
+    '''function : functionType ID addFuncToDir LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
+                | functionType ID addFuncToDir LEFTPAR RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE '''
     #Resetear scope a global cuando se salga del scope de la funcion, eliminar varTable y referenciar en functionDir
     global currentScope
     #del variableTable[currentScope]
@@ -276,16 +276,16 @@ def p_function(t):
     currentScope = "global"
 
 def p_param(t):
-	'param : PDT ID paramA1 functionParam'
+	'param : PDT ID addFuncParams functionParam'
 
 def p_functionParam(t):
 	'''functionParam : COMA param
 					 | '''
 
 def p_addFuncParams(t):
-    'paramA1 : '
+    'addFuncParams : '
     # Si parametro de la funcion ya existe en el scope (o global),dar error
-    if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
+    if t[-1] in variableTable[currentScope]:
         print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
         exit(0)
     else:
@@ -294,28 +294,28 @@ def p_addFuncParams(t):
 
 def p_functionType(t):
 	'''functionType : FUNCTION PDT
-					| FUNCTION VOID functionTypeA1'''
+					| FUNCTION VOID setVoidType'''
 
 def p_cst_PDT(t):
-	'''cst_PDT : CST_INT cstPDTA1
-				| CST_FLOAT cstPDTA2
-				| CST_CHAR cstPDTA3'''
+	'''cst_PDT : CST_INT addTypeInt
+				| CST_FLOAT addTypeFloat
+				| CST_CHAR addTypeChar'''
 	t[0] = t[1]
 
 def p_addTypeInt(t):
-	'cstPDT1 : '
+	'addTypeInt : '
 	types.push("int")
 
 def p_addTypeFloat(t):
-	'cstPDTA2 : '
+	'addTypeFloat : '
 	types.push("float")
 
 def p_addTypeChar(t):
-	'cstPDTA3 : '
+	'addTypeChar : '
 	types.push("char")
 
-def p_addToDir(t):
-    'functionA1 : '
+def p_addFuncToDir(t):
+    'addFuncToDir : '
     # Si la funcion ya existe en scope global, lanzar error
     if t[-1] in functionDir["global"] or t[-1] in variableTable["global"]:
         print("Error: redefinition of '%s' in line %d." % (t[-1], t.lexer.lineno))
@@ -335,17 +335,17 @@ def p_addToDir(t):
         functionDir[currentScope]["vars"] = variableTable[currentScope]
 
 def p_Expression2(t):
-    '''Expression2 : Expression3 Exp2A1 Expression22 Expression2Nested
+    '''Expression2 : Expression3 evaluateExp2 Expression22 Expression2Nested
                        | Expression3 opMatrix 
-                       | Expression3 Exp2A1'''
+                       | Expression3 evaluateExp2'''
 
 def p_Expression2Nested(t):
     '''Expression2Nested : Expression3 Exp2A1 Expression22 Expression2Nested
                              | Expression3 Exp2A1'''
 
 
-def p_opConsumeExp2(t):
-	'Exp2A1 : '
+def p_evaluateExp2(t):
+	'evaluateExp2 : '
 	global temp
 	if operators.size() != 0:
 		if operators.peek() == "|" or operators.peek() == "&":
@@ -375,8 +375,8 @@ def p_Expression22(t):
                     | OR addOperator'''
 
 def p_Expression3(t):
-    '''Expression3 : exp Exp3A1 Expression33 exp Exp3A1
-                       | exp Exp3A1'''
+    '''Expression3 : exp evaluateExp3 Expression33 exp evaluateExp3
+                       | exp evaluateExp3'''
 
 def p_Expression33(t):
 	'''Expression33 : GT addOperator
@@ -384,8 +384,8 @@ def p_Expression33(t):
 						 | NOTEQUAL addOperator 
 						 | ISEQUAL addOperator'''
 
-def p_opConsumeExp3(t):
-	'Exp3A1 : '
+def p_evaluateExp3(t):
+	'evaluateExp3 : '
 	global temp
 	if operators.size() != 0:
 		if operators.peek() == ">" or operators.peek() == "<" or operators.peek() == "<>" or operators.peek == "==":
@@ -420,11 +420,11 @@ def p_opMatrix(t):
 				| DOLLARSIGN addOperator '''
 
 def p_exp(t):
-	'''exp : term termA1 expFunction
-		   | term termA1 '''
+	'''exp : term evaluateTerm expFunction
+		   | term evaluateTerm '''
 
-def p_opConsumeExp(t):
-	'termA1 : '
+def p_evaluateTerm(t):
+	'evaluateTerm : '
 	global temp
 	if operators.size() != 0:
 		if operators.peek() == "+" or operators.peek() == "-":
@@ -454,18 +454,18 @@ def p_expFunction(t):
     '''expFunction : PLUS addOperator exp
                    | MINUS addOperator exp '''
 
-def p_setVoid(t):
-	'functionTypeA1 : '
+def p_setVoidType(t):
+	'setVoidType : '
 	# Establecer void como currentType
 	global currentType
 	currentType = t[-1]
 
 def p_term(t):
-        '''term : factor factorA1 termFunction
-            | factor factorA1'''
+        '''term : factor evaluateFactor termFunction
+            | factor evaluateFactor'''
 
-def p_opConsumeTerm(t):
-	'factorA1 : '
+def p_evaluateFactor(t):
+	'evaluateFactor : '
 	global temp
 	if operators.size() != 0:
 		if operators.peek() == "*" or operators.peek() == "/":
