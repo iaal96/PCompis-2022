@@ -116,7 +116,7 @@ def p_createJQif(t):
 			res = operands.pop()
 			operator = "GOTOF"
 			temp_quad = Quadruple(operator, res, None, None)
-			Quadruples.push(temp_quad)
+			Quadruples.push_quad(temp_quad)
 			Quadruples.push_jump(-1)
 		else: 
 			print("Error: type mismatch for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
