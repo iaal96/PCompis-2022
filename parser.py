@@ -8,7 +8,7 @@ tokens = lexer.tokens
 
 
 def p_program(t):
-	'program : PROGRAM ID programA1 SEMICOLON programVars programFunc main'
+	'program : PROGRAM ID globalTable SEMICOLON programVars programFunc main'
 	print("Code ok")
 	# Mostrar variable table y directorio de funciones
 	# print()
@@ -26,7 +26,7 @@ def p_program(t):
 
 #Global scope
 def p_globalTable(t):
-	'programA1 : '
+	'globalTable : '
 	# Inicializar variableTable para global scope y definir nombre y tipo del programa
 	variableTable[currentScope] = {}
 	variableTable[currentScope][t[-1]] = {"type": "program"}
@@ -41,10 +41,10 @@ def p_error(t):
 	exit(0)
 
 def p_main(t):
-	'main : mainA1 MAIN LEFTPAR RIGHTPAR LEFTBRACE statement RIGHTBRACE'
+	'main : mainTable MAIN LEFTPAR RIGHTPAR LEFTBRACE statement RIGHTBRACE'
 
 def p_mainTable(t):
-	'mainA1 : '
+	'mainTable : '
 	global currentScope
 	variableTable[currentScope]["main"] = {"type": "void"}
 	currentScope = "main"
@@ -259,8 +259,7 @@ def p_varsArray(t):
 				 | '''
 
 def p_function(t):
-    '''function : functionType ID addFuncToDir LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE
-                | functionType ID addFuncToDir LEFTPAR RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE '''
+'function : functionType ID addFuncToDir LEFTPAR param RIGHTPAR SEMICOLON LEFTBRACE statement RIGHTBRACE'
     #Resetear scope a global cuando se salga del scope de la funcion, eliminar varTable y referenciar en functionDir
     global currentScope
     #del variableTable[currentScope]
@@ -268,7 +267,8 @@ def p_function(t):
     currentScope = "global"
 
 def p_param(t):
-	'param : PDT ID addFuncParams functionParam'
+	'''param : PDT ID addFuncParams functionParam
+			 | '''
 
 def p_functionParam(t):
 	'''functionParam : COMA param
@@ -309,14 +309,14 @@ def p_addTypeChar(t):
 def p_addFuncToDir(t):
     'addFuncToDir : '
     # Si la funcion ya existe en scope global, lanzar error
-    if t[-1] in functionDir["global"] or t[-1] in variableTable["global"]:
+    if t[-1] in variableTable["global"]:
         print("Error: redefinition of '%s' in line %d." % (t[-1], t.lexer.lineno))
         exit(0)
     else:
         global currentScope
         global currentType
         # Agregar funcion a variableTable de currentScope
-        variableTable[currentScope][t[-1]] = {"type": currentType}
+        variableTable["global"][t[-1]] = {"type": currentType}
         # Cambiar scope a nuevo id de la funcion
         currentScope = t[-1]
         # Inicializar variableTable y functionDir para nuevo id de la funcion
