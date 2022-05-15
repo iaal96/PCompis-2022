@@ -281,9 +281,9 @@ def p_varsArray(t):
 				 | '''
 
 def p_function(t):
-'function : functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration statement RIGHTBRACE'
+	'function : functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration statement RIGHTBRACE'
     #Resetear scope a global cuando se salga del scope de la funcion, eliminar varTable y referenciar en functionDir
-    global currentScope
+	global currentScope
     #del variableTable[currentScope]
     #del functionDir[currentScope]["vars"]
 	# Crear cuadruplo endfuc para terminar funcion
@@ -292,7 +292,7 @@ def p_function(t):
 	# Variables temporales = longitud del cuadruplo de funcion al maximo y resetear func_quads
 	functionDir[currentScope]["varLength"] = Quadruples.func_quads
 	Quadruples.func_quads = 0
-    currentScope = "global"
+	currentScope = "global"
 
 def p_param(t):
 	'''param : PDT ID addFuncParams functionParam
@@ -303,17 +303,17 @@ def p_functionParam(t):
 					 | '''
 
 def p_addFuncParams(t):
-    'addFuncParams : '
-    # Si parametro de la funcion ya existe en el scope ,dar error
-    if t[-1] in variableTable[currentScope]:
-        print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
-        exit(0)
-    else:
-        # Agregar parametro funcion a variableTable de currentScope
-        variableTable[currentScope][t[-1]] = {"type": currentType}
+	'addFuncParams : '
+	# Si parametro de la funcion existe en el scope, dar error
+	if t[-1] in variableTable[currentScope]:
+		print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
+		exit(0)
+	else:
+		# Agregar parametro de la funcion a variableTable de currentScope
+		variableTable[currentScope][t[-1]] = {"type": currentType}
 		if "params" not in functionDir[currentScope]:
 			functionDir[currentScope]["params"] = Queue()
-		# Agregar currentTypes en Queue params
+		# Insertar currentTypes en params Queue
 		functionDir[currentScope]["params"].enqueue(currentType)
 
 def p_setParamLength(t):
@@ -369,8 +369,8 @@ def p_Expression2(t):
                        | Expression3 evaluateExp2'''
 
 def p_Expression2Nested(t):
-    '''Expression2Nested : Expression3 Exp2A1 Expression22 Expression2Nested
-                             | Expression3 Exp2A1'''
+    '''Expression2Nested : Expression3 evaluateExp2 Expression22 Expression2Nested
+                             | Expression3 evaluateExp2'''
 
 
 def p_evaluateExp2(t):
@@ -679,7 +679,7 @@ def p_moduleFunction(t):
 					  | Expression2 RIGHTPAR
 					  | '''
 
-f = open('prog.txt', 'r')
+f = open('test.txt', 'r')
 program = f.read()
 
 parser = yacc.yacc()

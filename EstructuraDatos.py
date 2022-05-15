@@ -86,7 +86,9 @@ for i in ty:
                 if i != 2 and j != 2:
                     semanticCube[(ty[i], ty[j], k)] = "float"
             # print("%s %s %s = %s" % (ty[i], k, ty[j], semanticCube[(ty[i], ty[j], k)]))
-#Ejemplo functionDir
+
+
+# functionDir visual example
 '''
     "global": {
         "type": "void",
@@ -104,9 +106,7 @@ for i in ty:
                                          }
                                          ...
     }
-'''
-
-    "test": {
+    "uno": {
         "type": "int",
         "params": Queue[int, int, float]
         "paramsLength": len(params)
@@ -115,7 +115,9 @@ for i in ty:
                                             "value": 1
                                         }
     }
-#Cubo Semantico
+'''
+
+# semanticCube explanation
 '''
     keys are tuples => (operand1, operand2, operator)
     semanticCube[(op1, op2, op)] => int/float/char/error
