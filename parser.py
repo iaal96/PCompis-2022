@@ -74,6 +74,7 @@ def p_programFunc(t):
 
 def p_assignment(t):
 	'assignment : ID EQUAL Expression2 SEMICOLON'
+	#Si id esta en currentScope, generar cuadruplo y asignar su valor en varTable
 	if t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
 			temp_quad = Quadruple("=", operands.pop(), None, t[1])
@@ -82,6 +83,7 @@ def p_assignment(t):
 		else:
 			print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
 			exit(0)
+	#Si id esta en globalScope, generar cuadruplo y asignar su valor en varTable
 	elif t[1] in variableTable["global"]:
 		if types.pop() == variableTable["global"][t[1]]["type"]:
 			temp_quad = Quadruple("=", operands.pop(), None, t[1])
@@ -95,6 +97,7 @@ def p_assignment(t):
 
 def p_declaration(t):
 	'declaration : VAR declarationPDT'
+	#Asignar cuadruplo start para funcion
 	functionDir[currentScope]["start"] = Quadruples.next_id
 
 #PDT=Primitive Data Type
@@ -121,6 +124,7 @@ def p_if(t):
 def p_createJQif(t):
 	'createJQif : '
 	result_type = types.pop()
+	#Checar tipo y valor de la expresion evaluada y generar cuadruplo
 	if result_type == "int":
 		if operands.peek() == 1 or operands.peek() == 0:
 			res = operands.pop()
@@ -137,6 +141,7 @@ def p_createJQif(t):
 
 def p_updateJQ(t):
 	'updateJQ : '
+	#Actualizar cuadruplos GOTOF
 	tmp_end = Quadruples.pop_jump()
 	tmp_count = Quadruples.next_id
 	tmp_quad = Quadruples.update_jump_quad(tmp_end, tmp_count)
@@ -148,6 +153,7 @@ def p_ifElse(t):
 #Jump Quad else
 def p_createJQelse(t):
 	'createJQelse : '
+	#Crear cuadruplo para else
 	operator = "GOTO"
 	tmp_quad = Quadruple(operator, '_', '_', '_')
 	Quadruples.push_quad(tmp_quad)
@@ -166,6 +172,7 @@ def p_pushJumpFor(t):
 def p_createQuadFor(t):
 	'createQuadFor : '
 	result_type = types.pop()
+	#Checar tipo y valor de la expresion y agregar cuadruplo al stack
 	if result_type == "int":
 		if operands.peek() == 1 or operands.peek() == 0:
 			res = operands.pop()
@@ -182,6 +189,7 @@ def p_createQuadFor(t):
 
 def p_updateQuadFor(t):
 	'updateQuadFor : '
+	#Actualizar cuadruplo GOTOF cuando termine el for
 	tmp_end = Quadruples.jump_stack.pop()
 	tmp_rtn = Quadruples.jump_stack.pop()
 	tmp_quad = Quadruple("GOTO", "_", "_", tmp_rtn)
@@ -191,10 +199,12 @@ def p_updateQuadFor(t):
 
 def p_forAssignment(t):
 	'forAssignment : ID EQUAL CST_INT'
+	#Checar si el id existe en currentScope y asignar su valor
 	if t[1] in variableTable[currentScope]:
 		temp_quad = Quadruple("=", t[3], '_', t[1])
 		Quadruples.push_quad(temp_quad)
 		variableTable[currentScope][t[1]]["value"] = t[3]
+	#Checar si el id existe en global scope y asignar su valor
 	elif t[1] in variableTable["global"]:
 		temp_quad = Quadruple("=", t[3], '_', t[1])
 		Quadruples.push_quad(temp_quad)
@@ -211,14 +221,15 @@ def p_pushLoop(t):
 def p_startLoop(t):
 	'startLoop : '
 	result_type = types.pop()
+	#Checar tipo y valor de expresion y agregar cuadruplo al stack
 	if result_type == "int":
 		if operands.peek() == 1 or operands.peek() == 0:
 			res = operands.pop()
 			operator = "GOTOF"
-			# Generate Quadruple and push it to the list
+			# Generar cuadruplo y hacerle push a la lista
 			tmp_quad = Quadruple(operator, res, None, None)
 			Quadruples.push_quad(tmp_quad)
-			#Push into jump stack
+			# Push al stack
 			Quadruples.push_jump(-1)
 		else:
 			print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
@@ -229,6 +240,7 @@ def p_startLoop(t):
 
 def p_endLoop(t):
 	'endLoop : '
+	#Generar cuadruplo cuando el while termine y actualizar GOTOF
 	false_jump = Quadruples.pop_jump()
 	return_jump = Quadruples.pop_jump()
 	tmp_quad = Quadruple("GOTO", "_", "_", return_jump-1)
@@ -306,6 +318,7 @@ def p_addFuncParams(t):
 
 def p_setParamLength(t):
 	'setParamLength : '
+	#Asignar el numero de parametro de la funcion al tamano del Queue params
 	functionDir[currentScope]["paramsLength"] = functionDir[currentScope]["params"].size()
 
 def p_functionType(t):
@@ -364,16 +377,28 @@ def p_evaluateExp2(t):
 	'evaluateExp2 : '
 	global temp
 	if operators.size() != 0:
+		#Generar cuadruplos para and y or
 		if operators.peek() == "|" or operators.peek() == "&":
+			#Operandos pop
 			rOp = operands.pop()
 			lOp = operands.pop()
+			#Operadores pop
 			oper = operators.pop()
+			#Tipos de pop
 			rType = types.pop()
 			lType = types.pop()
+			#Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
-			if resType != "error":
+			#Checar tipo y valor
+			if resType == "int":
 				result = 0
-				if operators.peek() == "|": 
+				lOp = int(lOp)
+				rOp = int(rOp)
+				if (lOp != 0 and lOp != 1) or (rOp != 0 and rOp != 1):
+					print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
+					exit(0)
+				#Evaluar expresion y hacerle push a cuadruplo
+				if oper == "|":
 					result = lOp or rOp
 				else: 
 					result = lOp and rOp
@@ -404,23 +429,31 @@ def p_evaluateExp3(t):
 	'evaluateExp3 : '
 	global temp
 	if operators.size() != 0:
-		if operators.peek() == ">" or operators.peek() == "<" or operators.peek() == "<>" or operators.peek == "==":
+		#Generar cuadruplos para operadores de comparacion
+		if operators.peek() == ">" or operators.peek() == "<" or operators.peek() == "<>" or operators.peek() == "==":
+			#Operandos pop
 			rOp = operands.pop()
 			lOp = operands.pop()
+			#Operador pop
 			oper = operators.pop()
+			#Tipos de pop
 			rType = types.pop()
 			lType = types.pop()
+			# Checar cubo semantico para tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
+			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				result = 0
 				if oper == ">": 
-					result = lOp > rOp
+					result = float(lOp) > float(rOp)
 				if oper == "<": 
-					result = lOp < rOp
+					result = float(lOp) < float(rOp)
 				if oper == "<>": 
-					result = lOp != rOp
+					result = float(lOp) != float(rOp)
 				if oper == "==": 
-					result = lOp == rOp
+					result = float(lOp) == float(rOp)
+				result = int(result)
+				# Generar cuadruplo para expresion
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
@@ -443,19 +476,28 @@ def p_evaluateTerm(t):
 	'evaluateTerm : '
 	global temp
 	if operators.size() != 0:
+		# Generar cuadruplo para operadores de suma y resta
 		if operators.peek() == "+" or operators.peek() == "-":
+			# Operandos pop
 			rOp = operands.pop()
 			lOp = operands.pop()
+			# Operador pop
 			oper = operators.pop()
+			# Tipos de pop
 			rType = types.pop()
 			lType = types.pop()
+			# Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
+			# Checar tipo del resultado y evaluar expresion
 			if resType != "error":
 				result = 0
 				if oper == "+": 
-					result = lOp + rOp
+					result = float(lOp) + float(rOp)
 				if oper == "-": 
-					result = lOp - rOp
+					result = float(lOp) - float(rOp)
+				if result % 1 == 0:
+					result = int(result)
+				# Generar cuadruplo para expresion
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
@@ -484,18 +526,27 @@ def p_evaluateFactor(t):
 	'evaluateFactor : '
 	global temp
 	if operators.size() != 0:
+		# Generar cuadruplo para operadores de multiplicacion y division
 		if operators.peek() == "*" or operators.peek() == "/":
+			# Operandos pop
 			rOp = operands.pop()
 			lOp = operands.pop()
+			# Operador pop
 			oper = operators.pop()
+			# Tipos de pop
 			rType = types.pop()
 			lType = types.pop()
+			# Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
+			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				if oper == "*": 
-					result = lOp * rOp
+					result = float(lOp) * float(rOp)
 				if oper == "/": 
-					result = lOp / rOp
+					result = float(lOp) / float(rOp)
+				if result % 1 == 0:
+					result = int(result)
+				# Generar cuadruplo para expresion
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
@@ -525,6 +576,7 @@ def p_addOperand(t):
 
 def p_addTypeId(t):
 	'addTypeId : '
+	#Hacer push a los tipos al stack de tipos
 	if t[-2] in variableTable[currentScope]:
 		types.push(variableTable[currentScope][t[-2]]["type"])
 	elif t[-2] in variableTable["global"]:
@@ -540,12 +592,14 @@ def p_addOperandCst(t):
 
 def p_addOperandId(t):
 	'addOperandId : '
+	#Agregar el valor del operando de currentcope al stack de operandos
 	if t[-1] in variableTable[currentScope]:
 		if "value" in variableTable[currentScope][t[-1]]:
 			operands.push(variableTable[currentScope][t[-1]]["value"])
 		else:
 			print("Error: variable '%s' in line %d has not been assigned a value" %(t[-1], t.lexer.lineno))
 			exit(0)
+	#Agregar el valor del operando de global scope al stack de operandos
 	elif t[-1] in variableTable["global"]:
 		if "value" in variableTable["global"][t[-1]]:
 			operands.push(variableTable["global"][t[-1]]["value"])
@@ -569,6 +623,7 @@ def p_id_listFunction(t):
 
 def p_addRead(t):
 	'addRead : '
+	#Genera cuadruplo Read
 	if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
 		temp_quad = Quadruple("read", None, None, t[-1])
 		Quadruples.push_quad(temp_quad)
@@ -587,6 +642,7 @@ def p_printFunction2(t):
 
 def p_addPrint(t):
 	'addPrint : '
+	#Genera cuadruplo print
 	temp_quad = Quadruple("print", None, None, operands.pop())
 	Quadruples.push_quad(temp_quad)
 	types.pop()
@@ -598,6 +654,7 @@ def p_print_param(t):
 
 def p_addPrintString(t):
 	'addPrintString : '
+	#Agrega string al cuadruplo print
 	temp_quad = Quadruple("print", None, None, t[-1])
 	Quadruples.push_quad(temp_quad)
 
