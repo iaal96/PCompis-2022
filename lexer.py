@@ -77,7 +77,7 @@ t_LEFTBRACE = r'\{'
 t_RIGHTBRACE = r'\}'
 t_CST_INT = r'[0-9]+'
 t_CST_FLOAT = r'[0.9]+\.[0.9]+'
-t_CST_STRING = r'("(\\"|[^"])*")|(\'(\\\'|[^\'])*\')'
+t_CST_STRING    = r'("(\\"|[^"])*")|(\'(\\\'|[^\'])*\')'
 t_CST_CHAR =  r'("(\\"|[^"])?")|(\'(\\\'|[^\'])?\')'
 t_COMMENT_TEXT =  r'%%.*\n'
 
