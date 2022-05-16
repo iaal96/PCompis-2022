@@ -9,7 +9,7 @@ tokens = lexer.tokens
 
 def p_program(t):
 	'program : PROGRAM ID globalTable SEMICOLON programVars programFunc main'
-	print("Code ok")
+	print("Compilacion exitosa")
 	# Mostrar variable table y directorio de funciones
 	# print()
 	# for i in functionDir:
@@ -42,7 +42,7 @@ def p_globalTable(t):
 	functionDir[currentScope]["vars"] = variableTable[currentScope]
     
 def p_error(t):
-	print("Syntax error: Unexpected token '%s' in line %d" % (t.value, t.lexer.lineno))
+	print("Error sintactico: Token '%s' no esperado en la linea %d" % (t.value, t.lexer.lineno))
 	exit(0)
 
 def p_main(t):
@@ -329,7 +329,6 @@ def p_cst_PDT(t):
 	'''cst_PDT : CST_INT addTypeInt
 				| CST_FLOAT addTypeFloat
 				| CST_CHAR addTypeChar'''
-	t[0] = t[1]
 
 def p_addTypeInt(t):
 	'addTypeInt : '
@@ -570,9 +569,9 @@ def p_factor(t):
 			  | module
 			  | ID addOperandId addTypeId'''
 
-def p_addOperand(t):
-	'addOperand : '
-	operands.push(t[-1])
+#def p_addOperand(t):
+	#'addOperand : '
+	#operands.push(t[-1])
 
 def p_addTypeId(t):
 	'addTypeId : '
@@ -597,14 +596,14 @@ def p_addOperandId(t):
 		if "value" in variableTable[currentScope][t[-1]]:
 			operands.push(variableTable[currentScope][t[-1]]["value"])
 		else:
-			print("Error: variable '%s' in line %d has not been assigned a value" %(t[-1], t.lexer.lineno))
+			print("Error: variable '%s' en linea %d no tiene asignada un valor" %(t[-1], t.lexer.lineno))
 			exit(0)
 	#Agregar el valor del operando de global scope al stack de operandos
 	elif t[-1] in variableTable["global"]:
 		if "value" in variableTable["global"][t[-1]]:
 			operands.push(variableTable["global"][t[-1]]["value"])
 		else:
-			print("Error: variable '%s' in line %d has not been assigned a value" %(t[-1], t.lexer.lineno))
+			print("Error: variable '%s' en linea %d no tiene asignada un valor" %(t[-1], t.lexer.lineno))
 			exit(0)
 	else:
 		print("Error: use of undefined variable '%s' in line %d" % (t[-1], t.lexer.lineno))
@@ -659,7 +658,60 @@ def p_addPrintString(t):
 	Quadruples.push_quad(temp_quad)
 
 def p_module(t):
-	'module : ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON'
+	'module : ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON'
+
+def p_checkFunctionExists(t):
+	'checkFunctionExists : '
+	if t[-1] not in functionDir:
+		print("Error: use of undefined module '%s' in line %d" % (t[-1], t.lexer.lineno))
+		exit(0)
+	global funcName
+	funcName = t[-1]
+
+def p_generateERASize(t):
+	'generateERASize : '
+	#Generar tamano ERA pendiente...
+	global funcName
+	tmp_quad = Quadruple("ERA", funcName, "_", "_")
+	Quadruples.push_quad(tmp_quad)
+	global k
+	k = 1
+
+def p_nullParam(t):
+	'nullParam : '
+	global k
+	global funcName
+	if k < len(functionDir[funcName]["params"].values()):
+		print("Error: unexpected number of arguments in module '%s' call in line %d." % (funcName, t.lexer.lineno))
+		exit(0)
+
+
+def p_generateGosub(t):
+	'generateGosub : '
+	tmp_quad = Quadruple("GOSUB", funcName, "_", functionDir[funcName]["start"])
+	Quadruples.push_quad(tmp_quad)
+
+def p_generateParam(t):
+	'generateParam : '
+	global k
+	arg = operands.pop()
+	argType = types.pop()
+	paramList = functionDir[funcName]["params"].values()
+	if k > len(paramList):
+		print("Error: unexpected number of arguments in module '%s' call in line %d." % (funcName, t.lexer.lineno))
+		exit(0)
+	if argType == paramList[-k]:
+		tmp_quad = Quadruple("PARAM", arg, '_', "param%d" % k)
+		Quadruples.push_quad(tmp_quad)
+	else:
+		print("Error: type mismatch in module '%s' call in line %d." % (funcName, t.lexer.lineno))
+		exit(0)
+
+def p_nextParam(t):
+	'nextParam : '
+	global k
+	k += 1
+
 
 def p_statement(t):
 	'''statement : return
@@ -675,8 +727,8 @@ def p_statement(t):
 
 
 def p_moduleFunction(t):
-	'''moduleFunction : Expression2 COMA moduleFunction
-					  | Expression2 RIGHTPAR
+	'''moduleFunction : Expression2 generateParam nextParam COMA moduleFunction
+					  | Expression2 generateParam
 					  | '''
 
 f = open('test.txt', 'r')

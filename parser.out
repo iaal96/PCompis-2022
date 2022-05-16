@@ -94,48 +94,53 @@ Rule 88    factor -> LEFTPAR Expression2 RIGHTPAR
 Rule 89    factor -> cst_PDT addOperandCst
 Rule 90    factor -> module
 Rule 91    factor -> ID addOperandId addTypeId
-Rule 92    addOperand -> <empty>
-Rule 93    addTypeId -> <empty>
-Rule 94    addOperandCst -> <empty>
-Rule 95    addOperandId -> <empty>
-Rule 96    read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON
-Rule 97    id_list -> ID addRead id_listFunction
-Rule 98    id_listFunction -> COMA id_list
-Rule 99    id_listFunction -> <empty>
-Rule 100   addRead -> <empty>
-Rule 101   print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
-Rule 102   printFunction -> print_param COMA printFunction2
-Rule 103   printFunction -> print_param
-Rule 104   printFunction2 -> printFunction
-Rule 105   addPrint -> <empty>
-Rule 106   print_param -> Expression2 addPrint
-Rule 107   print_param -> CST_STRING addPrintString
-Rule 108   addPrintString -> <empty>
-Rule 109   module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
-Rule 110   statement -> return
-Rule 111   statement -> if statement
-Rule 112   statement -> comment statement
-Rule 113   statement -> read statement
-Rule 114   statement -> print statement
-Rule 115   statement -> assignment statement
-Rule 116   statement -> module statement
-Rule 117   statement -> for statement
-Rule 118   statement -> while statement
-Rule 119   statement -> <empty>
-Rule 120   moduleFunction -> Expression2 COMA moduleFunction
-Rule 121   moduleFunction -> Expression2 RIGHTPAR
-Rule 122   moduleFunction -> <empty>
+Rule 92    addTypeId -> <empty>
+Rule 93    addOperandCst -> <empty>
+Rule 94    addOperandId -> <empty>
+Rule 95    read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON
+Rule 96    id_list -> ID addRead id_listFunction
+Rule 97    id_listFunction -> COMA id_list
+Rule 98    id_listFunction -> <empty>
+Rule 99    addRead -> <empty>
+Rule 100   print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+Rule 101   printFunction -> print_param COMA printFunction2
+Rule 102   printFunction -> print_param
+Rule 103   printFunction2 -> printFunction
+Rule 104   addPrint -> <empty>
+Rule 105   print_param -> Expression2 addPrint
+Rule 106   print_param -> CST_STRING addPrintString
+Rule 107   addPrintString -> <empty>
+Rule 108   module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+Rule 109   checkFunctionExists -> <empty>
+Rule 110   generateERASize -> <empty>
+Rule 111   nullParam -> <empty>
+Rule 112   generateGosub -> <empty>
+Rule 113   generateParam -> <empty>
+Rule 114   nextParam -> <empty>
+Rule 115   statement -> return
+Rule 116   statement -> if statement
+Rule 117   statement -> comment statement
+Rule 118   statement -> read statement
+Rule 119   statement -> print statement
+Rule 120   statement -> assignment statement
+Rule 121   statement -> module statement
+Rule 122   statement -> for statement
+Rule 123   statement -> while statement
+Rule 124   statement -> <empty>
+Rule 125   moduleFunction -> Expression2 generateParam nextParam COMA moduleFunction
+Rule 126   moduleFunction -> Expression2 generateParam
+Rule 127   moduleFunction -> <empty>
 
 Terminals, with rules where they appear
 
 AND                  : 64
 CHAR                 : 16
-COMA                 : 36 45 98 102 120
+COMA                 : 36 45 97 101 125
 COMMENT_TEXT         : 32
 CST_CHAR             : 53
 CST_FLOAT            : 52
 CST_INT              : 28 38 40 51
-CST_STRING           : 107
+CST_STRING           : 106
 DIVIDE               : 86
 DOLLARSIGN           : 75
 ELSE                 : 21
@@ -145,13 +150,13 @@ FLOAT                : 15
 FOR                  : 24
 FUNCTION             : 49 50
 GT                   : 68
-ID                   : 1 10 28 34 42 43 91 97 109
+ID                   : 1 10 28 34 42 43 91 96 108
 IF                   : 18
 INT                  : 14
 ISEQUAL              : 71
 LEFTBRACE            : 3 18 21 24 33 42
 LEFTBRACK            : 38 40
-LEFTPAR              : 3 17 18 33 42 88 96 101 109
+LEFTPAR              : 3 17 18 33 42 88 95 100 108
 LT                   : 69
 MAIN                 : 3
 MINUS                : 80
@@ -159,15 +164,15 @@ MULTIPLY             : 85
 NOTEQUAL             : 70
 OR                   : 65
 PLUS                 : 79
-PRINT                : 101
+PRINT                : 100
 PROGRAM              : 1
 QUESTION             : 74
-READ                 : 96
+READ                 : 95
 RETURN               : 17
 RIGHTBRACE           : 3 18 21 24 33 42
 RIGHTBRACK           : 38 40
-RIGHTPAR             : 3 17 18 33 42 88 96 101 109 121
-SEMICOLON            : 1 10 12 17 96 101 109
+RIGHTPAR             : 3 17 18 33 42 88 95 100 108
+SEMICOLON            : 1 10 12 17 95 100 108
 THEN                 : 18
 TO                   : 24
 VAR                  : 7 11
@@ -177,7 +182,7 @@ error                :
 
 Nonterminals, with rules where they appear
 
-Expression2          : 10 17 18 24 33 88 106 120 121
+Expression2          : 10 17 18 24 33 88 105 125 126
 Expression22         : 58 61
 Expression2Nested    : 58 61
 Expression3          : 58 59 60 61 62
@@ -185,20 +190,20 @@ Expression33         : 66
 PDT                  : 12 43 49
 addFuncParams        : 43
 addFuncToDir         : 42
-addOperand           : 
 addOperandCst        : 89
 addOperandId         : 91
 addOperator          : 64 65 68 69 70 71 73 74 75 79 80 85 86
-addPrint             : 106
-addPrintString       : 107
-addRead              : 97
+addPrint             : 105
+addPrintString       : 106
+addRead              : 96
 addTypeChar          : 53
 addTypeFloat         : 52
 addTypeId            : 91
 addTypeInt           : 51
 addVarsToTable       : 34
-assignment           : 115
-comment              : 112
+assignment           : 120
+checkFunctionExists  : 108
+comment              : 117
 createJQelse         : 21
 createJQif           : 18
 createQuadFor        : 24
@@ -213,38 +218,43 @@ evaluateTerm         : 76 77
 exp                  : 66 66 67 79 80
 expFunction          : 76
 factor               : 82 83
-for                  : 117
+for                  : 122
 forAssignment        : 24
 function             : 8
 functionParam        : 43
 functionType         : 42
+generateERASize      : 108
+generateGosub        : 108
+generateParam        : 125 126
 globalDeclaration    : 5
 globalTable          : 1
-id_list              : 96 98
-id_listFunction      : 97
-if                   : 111
+id_list              : 95 97
+id_listFunction      : 96
+if                   : 116
 ifElse               : 18
 main                 : 1
 mainTable            : 3
-module               : 90 116
-moduleFunction       : 109 120
+module               : 90 121
+moduleFunction       : 108 125
+nextParam            : 125
+nullParam            : 108
 opMatrix             : 59
 param                : 42 45
-print                : 114
-printFunction        : 101 104
-printFunction2       : 102
-print_param          : 102 103
+print                : 119
+printFunction        : 100 103
+printFunction2       : 101
+print_param          : 101 102
 program              : 0
 programFunc          : 1 8
 programVars          : 1
 pushJumpFor          : 24
 pushLoop             : 33
-read                 : 113
-return               : 110
+read                 : 118
+return               : 115
 setParamLength       : 42
 setVoidType          : 50
 startLoop            : 33
-statement            : 3 18 21 24 33 42 111 112 113 114 115 116 117 118
+statement            : 3 18 21 24 33 42 116 117 118 119 120 121 122 123
 term                 : 76 77 85 86
 termFunction         : 82
 updateJQ             : 18
@@ -253,7 +263,7 @@ vars                 : 12 36
 varsArray            : 34
 varsComa             : 34
 varsMatrix           : 40
-while                : 118
+while                : 123
 
 Parsing method: LALR
 
@@ -715,27 +725,27 @@ state 46
 state 47
 
     (3) main -> mainTable MAIN LEFTPAR RIGHTPAR LEFTBRACE declaration . statement RIGHTBRACE
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -823,35 +833,35 @@ state 53
 
 state 54
 
-    (110) statement -> return .
+    (115) statement -> return .
 
-    RIGHTBRACE      reduce using rule 110 (statement -> return .)
+    RIGHTBRACE      reduce using rule 115 (statement -> return .)
 
 
 state 55
 
-    (111) statement -> if . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (116) statement -> if . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -874,28 +884,28 @@ state 55
 
 state 56
 
-    (112) statement -> comment . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (117) statement -> comment . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -918,28 +928,28 @@ state 56
 
 state 57
 
-    (113) statement -> read . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (118) statement -> read . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -962,28 +972,28 @@ state 57
 
 state 58
 
-    (114) statement -> print . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (119) statement -> print . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -1006,28 +1016,28 @@ state 58
 
 state 59
 
-    (115) statement -> assignment . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (120) statement -> assignment . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -1050,28 +1060,28 @@ state 59
 
 state 60
 
-    (116) statement -> module . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (121) statement -> module . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -1094,28 +1104,28 @@ state 60
 
 state 61
 
-    (117) statement -> for . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (122) statement -> for . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -1138,28 +1148,28 @@ state 61
 
 state 62
 
-    (118) statement -> while . statement
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (123) statement -> while . statement
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -1211,14 +1221,14 @@ state 65
 
 state 66
 
-    (96) read -> READ . LEFTPAR id_list RIGHTPAR SEMICOLON
+    (95) read -> READ . LEFTPAR id_list RIGHTPAR SEMICOLON
 
     LEFTPAR         shift and go to state 87
 
 
 state 67
 
-    (101) print -> PRINT . LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (100) print -> PRINT . LEFTPAR printFunction RIGHTPAR SEMICOLON
 
     LEFTPAR         shift and go to state 88
 
@@ -1226,11 +1236,13 @@ state 67
 state 68
 
     (10) assignment -> ID . EQUAL Expression2 SEMICOLON
-    (109) module -> ID . LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> ID . checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+    (109) checkFunctionExists -> .
 
     EQUAL           shift and go to state 89
-    LEFTPAR         shift and go to state 90
+    LEFTPAR         reduce using rule 109 (checkFunctionExists -> .)
 
+    checkFunctionExists            shift and go to state 90
 
 state 69
 
@@ -1314,58 +1326,58 @@ state 76
 
 state 77
 
-    (111) statement -> if statement .
+    (116) statement -> if statement .
 
-    RIGHTBRACE      reduce using rule 111 (statement -> if statement .)
+    RIGHTBRACE      reduce using rule 116 (statement -> if statement .)
 
 
 state 78
 
-    (112) statement -> comment statement .
+    (117) statement -> comment statement .
 
-    RIGHTBRACE      reduce using rule 112 (statement -> comment statement .)
+    RIGHTBRACE      reduce using rule 117 (statement -> comment statement .)
 
 
 state 79
 
-    (113) statement -> read statement .
+    (118) statement -> read statement .
 
-    RIGHTBRACE      reduce using rule 113 (statement -> read statement .)
+    RIGHTBRACE      reduce using rule 118 (statement -> read statement .)
 
 
 state 80
 
-    (114) statement -> print statement .
+    (119) statement -> print statement .
 
-    RIGHTBRACE      reduce using rule 114 (statement -> print statement .)
+    RIGHTBRACE      reduce using rule 119 (statement -> print statement .)
 
 
 state 81
 
-    (115) statement -> assignment statement .
+    (120) statement -> assignment statement .
 
-    RIGHTBRACE      reduce using rule 115 (statement -> assignment statement .)
+    RIGHTBRACE      reduce using rule 120 (statement -> assignment statement .)
 
 
 state 82
 
-    (116) statement -> module statement .
+    (121) statement -> module statement .
 
-    RIGHTBRACE      reduce using rule 116 (statement -> module statement .)
+    RIGHTBRACE      reduce using rule 121 (statement -> module statement .)
 
 
 state 83
 
-    (117) statement -> for statement .
+    (122) statement -> for statement .
 
-    RIGHTBRACE      reduce using rule 117 (statement -> for statement .)
+    RIGHTBRACE      reduce using rule 122 (statement -> for statement .)
 
 
 state 84
 
-    (118) statement -> while statement .
+    (123) statement -> while statement .
 
-    RIGHTBRACE      reduce using rule 118 (statement -> while statement .)
+    RIGHTBRACE      reduce using rule 123 (statement -> while statement .)
 
 
 state 85
@@ -1387,7 +1399,7 @@ state 85
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -1422,7 +1434,7 @@ state 86
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -1440,8 +1452,8 @@ state 86
 
 state 87
 
-    (96) read -> READ LEFTPAR . id_list RIGHTPAR SEMICOLON
-    (97) id_list -> . ID addRead id_listFunction
+    (95) read -> READ LEFTPAR . id_list RIGHTPAR SEMICOLON
+    (96) id_list -> . ID addRead id_listFunction
 
     ID              shift and go to state 111
 
@@ -1449,11 +1461,11 @@ state 87
 
 state 88
 
-    (101) print -> PRINT LEFTPAR . printFunction RIGHTPAR SEMICOLON
-    (102) printFunction -> . print_param COMA printFunction2
-    (103) printFunction -> . print_param
-    (106) print_param -> . Expression2 addPrint
-    (107) print_param -> . CST_STRING addPrintString
+    (100) print -> PRINT LEFTPAR . printFunction RIGHTPAR SEMICOLON
+    (101) printFunction -> . print_param COMA printFunction2
+    (102) printFunction -> . print_param
+    (105) print_param -> . Expression2 addPrint
+    (106) print_param -> . CST_STRING addPrintString
     (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
     (59) Expression2 -> . Expression3 opMatrix
     (60) Expression2 -> . Expression3 evaluateExp2
@@ -1470,7 +1482,7 @@ state 88
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     CST_STRING      shift and go to state 115
     LEFTPAR         shift and go to state 97
@@ -1508,7 +1520,7 @@ state 89
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -1526,89 +1538,58 @@ state 89
 
 state 90
 
-    (109) module -> ID LEFTPAR . moduleFunction RIGHTPAR SEMICOLON
-    (120) moduleFunction -> . Expression2 COMA moduleFunction
-    (121) moduleFunction -> . Expression2 RIGHTPAR
-    (122) moduleFunction -> .
-    (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
-    (59) Expression2 -> . Expression3 opMatrix
-    (60) Expression2 -> . Expression3 evaluateExp2
-    (66) Expression3 -> . exp evaluateExp3 Expression33 exp evaluateExp3
-    (67) Expression3 -> . exp evaluateExp3
-    (76) exp -> . term evaluateTerm expFunction
-    (77) exp -> . term evaluateTerm
-    (82) term -> . factor evaluateFactor termFunction
-    (83) term -> . factor evaluateFactor
-    (88) factor -> . LEFTPAR Expression2 RIGHTPAR
-    (89) factor -> . cst_PDT addOperandCst
-    (90) factor -> . module
-    (91) factor -> . ID addOperandId addTypeId
-    (51) cst_PDT -> . CST_INT addTypeInt
-    (52) cst_PDT -> . CST_FLOAT addTypeFloat
-    (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> ID checkFunctionExists . generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+    (110) generateERASize -> .
 
-    RIGHTPAR        reduce using rule 122 (moduleFunction -> .)
-    LEFTPAR         shift and go to state 97
-    ID              shift and go to state 105
-    CST_INT         shift and go to state 106
-    CST_FLOAT       shift and go to state 107
-    CST_CHAR        shift and go to state 108
+    LEFTPAR         reduce using rule 110 (generateERASize -> .)
 
-    moduleFunction                 shift and go to state 117
-    Expression2                    shift and go to state 118
-    Expression3                    shift and go to state 99
-    exp                            shift and go to state 100
-    term                           shift and go to state 101
-    factor                         shift and go to state 102
-    cst_PDT                        shift and go to state 103
-    module                         shift and go to state 104
+    generateERASize                shift and go to state 117
 
 state 91
 
     (24) for -> FOR forAssignment . TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
 
-    TO              shift and go to state 119
+    TO              shift and go to state 118
 
 
 state 92
 
     (28) forAssignment -> ID . EQUAL CST_INT
 
-    EQUAL           shift and go to state 120
+    EQUAL           shift and go to state 119
 
 
 state 93
 
     (33) while -> WHILE pushLoop . LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    LEFTPAR         shift and go to state 121
+    LEFTPAR         shift and go to state 120
 
 
 state 94
 
     (42) function -> functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration . statement RIGHTBRACE
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -1618,7 +1599,7 @@ state 94
     FOR             shift and go to state 69
     WHILE           shift and go to state 70
 
-    statement                      shift and go to state 122
+    statement                      shift and go to state 121
     return                         shift and go to state 54
     if                             shift and go to state 55
     comment                        shift and go to state 56
@@ -1663,7 +1644,7 @@ state 97
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -1671,7 +1652,7 @@ state 97
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    Expression2                    shift and go to state 123
+    Expression2                    shift and go to state 122
     Expression3                    shift and go to state 99
     exp                            shift and go to state 100
     term                           shift and go to state 101
@@ -1683,7 +1664,7 @@ state 98
 
     (17) return -> RETURN LEFTPAR Expression2 . RIGHTPAR SEMICOLON
 
-    RIGHTPAR        shift and go to state 124
+    RIGHTPAR        shift and go to state 123
 
 
 state 99
@@ -1702,12 +1683,12 @@ state 99
     COMA            reduce using rule 63 (evaluateExp2 -> .)
     SEMICOLON       reduce using rule 63 (evaluateExp2 -> .)
     LEFTBRACE       reduce using rule 63 (evaluateExp2 -> .)
-    EXCLAMATION     shift and go to state 127
-    QUESTION        shift and go to state 128
-    DOLLARSIGN      shift and go to state 129
+    EXCLAMATION     shift and go to state 126
+    QUESTION        shift and go to state 127
+    DOLLARSIGN      shift and go to state 128
 
-    evaluateExp2                   shift and go to state 125
-    opMatrix                       shift and go to state 126
+    evaluateExp2                   shift and go to state 124
+    opMatrix                       shift and go to state 125
 
 state 100
 
@@ -1729,7 +1710,7 @@ state 100
     SEMICOLON       reduce using rule 72 (evaluateExp3 -> .)
     LEFTBRACE       reduce using rule 72 (evaluateExp3 -> .)
 
-    evaluateExp3                   shift and go to state 130
+    evaluateExp3                   shift and go to state 129
 
 state 101
 
@@ -1753,7 +1734,7 @@ state 101
     SEMICOLON       reduce using rule 78 (evaluateTerm -> .)
     LEFTBRACE       reduce using rule 78 (evaluateTerm -> .)
 
-    evaluateTerm                   shift and go to state 131
+    evaluateTerm                   shift and go to state 130
 
 state 102
 
@@ -1779,32 +1760,32 @@ state 102
     SEMICOLON       reduce using rule 84 (evaluateFactor -> .)
     LEFTBRACE       reduce using rule 84 (evaluateFactor -> .)
 
-    evaluateFactor                 shift and go to state 132
+    evaluateFactor                 shift and go to state 131
 
 state 103
 
     (89) factor -> cst_PDT . addOperandCst
-    (94) addOperandCst -> .
+    (93) addOperandCst -> .
 
-    MULTIPLY        reduce using rule 94 (addOperandCst -> .)
-    DIVIDE          reduce using rule 94 (addOperandCst -> .)
-    PLUS            reduce using rule 94 (addOperandCst -> .)
-    MINUS           reduce using rule 94 (addOperandCst -> .)
-    GT              reduce using rule 94 (addOperandCst -> .)
-    LT              reduce using rule 94 (addOperandCst -> .)
-    NOTEQUAL        reduce using rule 94 (addOperandCst -> .)
-    ISEQUAL         reduce using rule 94 (addOperandCst -> .)
-    EXCLAMATION     reduce using rule 94 (addOperandCst -> .)
-    QUESTION        reduce using rule 94 (addOperandCst -> .)
-    DOLLARSIGN      reduce using rule 94 (addOperandCst -> .)
-    AND             reduce using rule 94 (addOperandCst -> .)
-    OR              reduce using rule 94 (addOperandCst -> .)
-    RIGHTPAR        reduce using rule 94 (addOperandCst -> .)
-    COMA            reduce using rule 94 (addOperandCst -> .)
-    SEMICOLON       reduce using rule 94 (addOperandCst -> .)
-    LEFTBRACE       reduce using rule 94 (addOperandCst -> .)
+    MULTIPLY        reduce using rule 93 (addOperandCst -> .)
+    DIVIDE          reduce using rule 93 (addOperandCst -> .)
+    PLUS            reduce using rule 93 (addOperandCst -> .)
+    MINUS           reduce using rule 93 (addOperandCst -> .)
+    GT              reduce using rule 93 (addOperandCst -> .)
+    LT              reduce using rule 93 (addOperandCst -> .)
+    NOTEQUAL        reduce using rule 93 (addOperandCst -> .)
+    ISEQUAL         reduce using rule 93 (addOperandCst -> .)
+    EXCLAMATION     reduce using rule 93 (addOperandCst -> .)
+    QUESTION        reduce using rule 93 (addOperandCst -> .)
+    DOLLARSIGN      reduce using rule 93 (addOperandCst -> .)
+    AND             reduce using rule 93 (addOperandCst -> .)
+    OR              reduce using rule 93 (addOperandCst -> .)
+    RIGHTPAR        reduce using rule 93 (addOperandCst -> .)
+    COMA            reduce using rule 93 (addOperandCst -> .)
+    SEMICOLON       reduce using rule 93 (addOperandCst -> .)
+    LEFTBRACE       reduce using rule 93 (addOperandCst -> .)
 
-    addOperandCst                  shift and go to state 133
+    addOperandCst                  shift and go to state 132
 
 state 104
 
@@ -1832,29 +1813,31 @@ state 104
 state 105
 
     (91) factor -> ID . addOperandId addTypeId
-    (109) module -> ID . LEFTPAR moduleFunction RIGHTPAR SEMICOLON
-    (95) addOperandId -> .
+    (108) module -> ID . checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+    (94) addOperandId -> .
+    (109) checkFunctionExists -> .
 
-    LEFTPAR         shift and go to state 90
-    MULTIPLY        reduce using rule 95 (addOperandId -> .)
-    DIVIDE          reduce using rule 95 (addOperandId -> .)
-    PLUS            reduce using rule 95 (addOperandId -> .)
-    MINUS           reduce using rule 95 (addOperandId -> .)
-    GT              reduce using rule 95 (addOperandId -> .)
-    LT              reduce using rule 95 (addOperandId -> .)
-    NOTEQUAL        reduce using rule 95 (addOperandId -> .)
-    ISEQUAL         reduce using rule 95 (addOperandId -> .)
-    EXCLAMATION     reduce using rule 95 (addOperandId -> .)
-    QUESTION        reduce using rule 95 (addOperandId -> .)
-    DOLLARSIGN      reduce using rule 95 (addOperandId -> .)
-    AND             reduce using rule 95 (addOperandId -> .)
-    OR              reduce using rule 95 (addOperandId -> .)
-    RIGHTPAR        reduce using rule 95 (addOperandId -> .)
-    COMA            reduce using rule 95 (addOperandId -> .)
-    SEMICOLON       reduce using rule 95 (addOperandId -> .)
-    LEFTBRACE       reduce using rule 95 (addOperandId -> .)
+    MULTIPLY        reduce using rule 94 (addOperandId -> .)
+    DIVIDE          reduce using rule 94 (addOperandId -> .)
+    PLUS            reduce using rule 94 (addOperandId -> .)
+    MINUS           reduce using rule 94 (addOperandId -> .)
+    GT              reduce using rule 94 (addOperandId -> .)
+    LT              reduce using rule 94 (addOperandId -> .)
+    NOTEQUAL        reduce using rule 94 (addOperandId -> .)
+    ISEQUAL         reduce using rule 94 (addOperandId -> .)
+    EXCLAMATION     reduce using rule 94 (addOperandId -> .)
+    QUESTION        reduce using rule 94 (addOperandId -> .)
+    DOLLARSIGN      reduce using rule 94 (addOperandId -> .)
+    AND             reduce using rule 94 (addOperandId -> .)
+    OR              reduce using rule 94 (addOperandId -> .)
+    RIGHTPAR        reduce using rule 94 (addOperandId -> .)
+    COMA            reduce using rule 94 (addOperandId -> .)
+    SEMICOLON       reduce using rule 94 (addOperandId -> .)
+    LEFTBRACE       reduce using rule 94 (addOperandId -> .)
+    LEFTPAR         reduce using rule 109 (checkFunctionExists -> .)
 
-    addOperandId                   shift and go to state 134
+    addOperandId                   shift and go to state 133
+    checkFunctionExists            shift and go to state 90
 
 state 106
 
@@ -1879,7 +1862,7 @@ state 106
     SEMICOLON       reduce using rule 54 (addTypeInt -> .)
     LEFTBRACE       reduce using rule 54 (addTypeInt -> .)
 
-    addTypeInt                     shift and go to state 135
+    addTypeInt                     shift and go to state 134
 
 state 107
 
@@ -1904,7 +1887,7 @@ state 107
     SEMICOLON       reduce using rule 55 (addTypeFloat -> .)
     LEFTBRACE       reduce using rule 55 (addTypeFloat -> .)
 
-    addTypeFloat                   shift and go to state 136
+    addTypeFloat                   shift and go to state 135
 
 state 108
 
@@ -1929,92 +1912,83 @@ state 108
     SEMICOLON       reduce using rule 56 (addTypeChar -> .)
     LEFTBRACE       reduce using rule 56 (addTypeChar -> .)
 
-    addTypeChar                    shift and go to state 137
+    addTypeChar                    shift and go to state 136
 
 state 109
 
     (18) if -> IF LEFTPAR Expression2 . RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
 
-    RIGHTPAR        shift and go to state 138
+    RIGHTPAR        shift and go to state 137
 
 
 state 110
 
-    (96) read -> READ LEFTPAR id_list . RIGHTPAR SEMICOLON
+    (95) read -> READ LEFTPAR id_list . RIGHTPAR SEMICOLON
 
-    RIGHTPAR        shift and go to state 139
+    RIGHTPAR        shift and go to state 138
 
 
 state 111
 
-    (97) id_list -> ID . addRead id_listFunction
-    (100) addRead -> .
+    (96) id_list -> ID . addRead id_listFunction
+    (99) addRead -> .
 
-    COMA            reduce using rule 100 (addRead -> .)
-    RIGHTPAR        reduce using rule 100 (addRead -> .)
+    COMA            reduce using rule 99 (addRead -> .)
+    RIGHTPAR        reduce using rule 99 (addRead -> .)
 
-    addRead                        shift and go to state 140
+    addRead                        shift and go to state 139
 
 state 112
 
-    (101) print -> PRINT LEFTPAR printFunction . RIGHTPAR SEMICOLON
+    (100) print -> PRINT LEFTPAR printFunction . RIGHTPAR SEMICOLON
 
-    RIGHTPAR        shift and go to state 141
+    RIGHTPAR        shift and go to state 140
 
 
 state 113
 
-    (102) printFunction -> print_param . COMA printFunction2
-    (103) printFunction -> print_param .
+    (101) printFunction -> print_param . COMA printFunction2
+    (102) printFunction -> print_param .
 
-    COMA            shift and go to state 142
-    RIGHTPAR        reduce using rule 103 (printFunction -> print_param .)
+    COMA            shift and go to state 141
+    RIGHTPAR        reduce using rule 102 (printFunction -> print_param .)
 
 
 state 114
 
-    (106) print_param -> Expression2 . addPrint
-    (105) addPrint -> .
+    (105) print_param -> Expression2 . addPrint
+    (104) addPrint -> .
 
-    COMA            reduce using rule 105 (addPrint -> .)
-    RIGHTPAR        reduce using rule 105 (addPrint -> .)
+    COMA            reduce using rule 104 (addPrint -> .)
+    RIGHTPAR        reduce using rule 104 (addPrint -> .)
 
-    addPrint                       shift and go to state 143
+    addPrint                       shift and go to state 142
 
 state 115
 
-    (107) print_param -> CST_STRING . addPrintString
-    (108) addPrintString -> .
+    (106) print_param -> CST_STRING . addPrintString
+    (107) addPrintString -> .
 
-    COMA            reduce using rule 108 (addPrintString -> .)
-    RIGHTPAR        reduce using rule 108 (addPrintString -> .)
+    COMA            reduce using rule 107 (addPrintString -> .)
+    RIGHTPAR        reduce using rule 107 (addPrintString -> .)
 
-    addPrintString                 shift and go to state 144
+    addPrintString                 shift and go to state 143
 
 state 116
 
     (10) assignment -> ID EQUAL Expression2 . SEMICOLON
 
-    SEMICOLON       shift and go to state 145
+    SEMICOLON       shift and go to state 144
 
 
 state 117
 
-    (109) module -> ID LEFTPAR moduleFunction . RIGHTPAR SEMICOLON
+    (108) module -> ID checkFunctionExists generateERASize . LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
-    RIGHTPAR        shift and go to state 146
+    LEFTPAR         shift and go to state 145
 
 
 state 118
-
-    (120) moduleFunction -> Expression2 . COMA moduleFunction
-    (121) moduleFunction -> Expression2 . RIGHTPAR
-
-    COMA            shift and go to state 147
-    RIGHTPAR        shift and go to state 148
-
-
-state 119
 
     (24) for -> FOR forAssignment TO . pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (25) pushJumpFor -> .
@@ -2025,16 +1999,16 @@ state 119
     CST_FLOAT       reduce using rule 25 (pushJumpFor -> .)
     CST_CHAR        reduce using rule 25 (pushJumpFor -> .)
 
-    pushJumpFor                    shift and go to state 149
+    pushJumpFor                    shift and go to state 146
 
-state 120
+state 119
 
     (28) forAssignment -> ID EQUAL . CST_INT
 
-    CST_INT         shift and go to state 150
+    CST_INT         shift and go to state 147
 
 
-state 121
+state 120
 
     (33) while -> WHILE pushLoop LEFTPAR . Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
     (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
@@ -2053,7 +2027,7 @@ state 121
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -2061,7 +2035,7 @@ state 121
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    Expression2                    shift and go to state 151
+    Expression2                    shift and go to state 148
     Expression3                    shift and go to state 99
     exp                            shift and go to state 100
     term                           shift and go to state 101
@@ -2069,28 +2043,28 @@ state 121
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 122
+state 121
 
     (42) function -> functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration statement . RIGHTBRACE
 
-    RIGHTBRACE      shift and go to state 152
+    RIGHTBRACE      shift and go to state 149
+
+
+state 122
+
+    (88) factor -> LEFTPAR Expression2 . RIGHTPAR
+
+    RIGHTPAR        shift and go to state 150
 
 
 state 123
 
-    (88) factor -> LEFTPAR Expression2 . RIGHTPAR
+    (17) return -> RETURN LEFTPAR Expression2 RIGHTPAR . SEMICOLON
 
-    RIGHTPAR        shift and go to state 153
+    SEMICOLON       shift and go to state 151
 
 
 state 124
-
-    (17) return -> RETURN LEFTPAR Expression2 RIGHTPAR . SEMICOLON
-
-    SEMICOLON       shift and go to state 154
-
-
-state 125
 
     (58) Expression2 -> Expression3 evaluateExp2 . Expression22 Expression2Nested
     (60) Expression2 -> Expression3 evaluateExp2 .
@@ -2101,12 +2075,12 @@ state 125
     COMA            reduce using rule 60 (Expression2 -> Expression3 evaluateExp2 .)
     SEMICOLON       reduce using rule 60 (Expression2 -> Expression3 evaluateExp2 .)
     LEFTBRACE       reduce using rule 60 (Expression2 -> Expression3 evaluateExp2 .)
-    AND             shift and go to state 156
-    OR              shift and go to state 157
+    AND             shift and go to state 153
+    OR              shift and go to state 154
 
-    Expression22                   shift and go to state 155
+    Expression22                   shift and go to state 152
 
-state 126
+state 125
 
     (59) Expression2 -> Expression3 opMatrix .
 
@@ -2116,7 +2090,7 @@ state 126
     LEFTBRACE       reduce using rule 59 (Expression2 -> Expression3 opMatrix .)
 
 
-state 127
+state 126
 
     (73) opMatrix -> EXCLAMATION . addOperator
     (87) addOperator -> .
@@ -2126,9 +2100,9 @@ state 127
     SEMICOLON       reduce using rule 87 (addOperator -> .)
     LEFTBRACE       reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 158
+    addOperator                    shift and go to state 155
 
-state 128
+state 127
 
     (74) opMatrix -> QUESTION . addOperator
     (87) addOperator -> .
@@ -2138,9 +2112,9 @@ state 128
     SEMICOLON       reduce using rule 87 (addOperator -> .)
     LEFTBRACE       reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 159
+    addOperator                    shift and go to state 156
 
-state 129
+state 128
 
     (75) opMatrix -> DOLLARSIGN . addOperator
     (87) addOperator -> .
@@ -2150,9 +2124,9 @@ state 129
     SEMICOLON       reduce using rule 87 (addOperator -> .)
     LEFTBRACE       reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 160
+    addOperator                    shift and go to state 157
 
-state 130
+state 129
 
     (66) Expression3 -> exp evaluateExp3 . Expression33 exp evaluateExp3
     (67) Expression3 -> exp evaluateExp3 .
@@ -2170,14 +2144,14 @@ state 130
     COMA            reduce using rule 67 (Expression3 -> exp evaluateExp3 .)
     SEMICOLON       reduce using rule 67 (Expression3 -> exp evaluateExp3 .)
     LEFTBRACE       reduce using rule 67 (Expression3 -> exp evaluateExp3 .)
-    GT              shift and go to state 162
-    LT              shift and go to state 163
-    NOTEQUAL        shift and go to state 164
-    ISEQUAL         shift and go to state 165
+    GT              shift and go to state 159
+    LT              shift and go to state 160
+    NOTEQUAL        shift and go to state 161
+    ISEQUAL         shift and go to state 162
 
-    Expression33                   shift and go to state 161
+    Expression33                   shift and go to state 158
 
-state 131
+state 130
 
     (76) exp -> term evaluateTerm . expFunction
     (77) exp -> term evaluateTerm .
@@ -2197,12 +2171,12 @@ state 131
     COMA            reduce using rule 77 (exp -> term evaluateTerm .)
     SEMICOLON       reduce using rule 77 (exp -> term evaluateTerm .)
     LEFTBRACE       reduce using rule 77 (exp -> term evaluateTerm .)
-    PLUS            shift and go to state 167
-    MINUS           shift and go to state 168
+    PLUS            shift and go to state 164
+    MINUS           shift and go to state 165
 
-    expFunction                    shift and go to state 166
+    expFunction                    shift and go to state 163
 
-state 132
+state 131
 
     (82) term -> factor evaluateFactor . termFunction
     (83) term -> factor evaluateFactor .
@@ -2224,12 +2198,12 @@ state 132
     COMA            reduce using rule 83 (term -> factor evaluateFactor .)
     SEMICOLON       reduce using rule 83 (term -> factor evaluateFactor .)
     LEFTBRACE       reduce using rule 83 (term -> factor evaluateFactor .)
-    MULTIPLY        shift and go to state 170
-    DIVIDE          shift and go to state 171
+    MULTIPLY        shift and go to state 167
+    DIVIDE          shift and go to state 168
 
-    termFunction                   shift and go to state 169
+    termFunction                   shift and go to state 166
 
-state 133
+state 132
 
     (89) factor -> cst_PDT addOperandCst .
 
@@ -2252,32 +2226,32 @@ state 133
     LEFTBRACE       reduce using rule 89 (factor -> cst_PDT addOperandCst .)
 
 
-state 134
+state 133
 
     (91) factor -> ID addOperandId . addTypeId
-    (93) addTypeId -> .
+    (92) addTypeId -> .
 
-    MULTIPLY        reduce using rule 93 (addTypeId -> .)
-    DIVIDE          reduce using rule 93 (addTypeId -> .)
-    PLUS            reduce using rule 93 (addTypeId -> .)
-    MINUS           reduce using rule 93 (addTypeId -> .)
-    GT              reduce using rule 93 (addTypeId -> .)
-    LT              reduce using rule 93 (addTypeId -> .)
-    NOTEQUAL        reduce using rule 93 (addTypeId -> .)
-    ISEQUAL         reduce using rule 93 (addTypeId -> .)
-    EXCLAMATION     reduce using rule 93 (addTypeId -> .)
-    QUESTION        reduce using rule 93 (addTypeId -> .)
-    DOLLARSIGN      reduce using rule 93 (addTypeId -> .)
-    AND             reduce using rule 93 (addTypeId -> .)
-    OR              reduce using rule 93 (addTypeId -> .)
-    RIGHTPAR        reduce using rule 93 (addTypeId -> .)
-    COMA            reduce using rule 93 (addTypeId -> .)
-    SEMICOLON       reduce using rule 93 (addTypeId -> .)
-    LEFTBRACE       reduce using rule 93 (addTypeId -> .)
+    MULTIPLY        reduce using rule 92 (addTypeId -> .)
+    DIVIDE          reduce using rule 92 (addTypeId -> .)
+    PLUS            reduce using rule 92 (addTypeId -> .)
+    MINUS           reduce using rule 92 (addTypeId -> .)
+    GT              reduce using rule 92 (addTypeId -> .)
+    LT              reduce using rule 92 (addTypeId -> .)
+    NOTEQUAL        reduce using rule 92 (addTypeId -> .)
+    ISEQUAL         reduce using rule 92 (addTypeId -> .)
+    EXCLAMATION     reduce using rule 92 (addTypeId -> .)
+    QUESTION        reduce using rule 92 (addTypeId -> .)
+    DOLLARSIGN      reduce using rule 92 (addTypeId -> .)
+    AND             reduce using rule 92 (addTypeId -> .)
+    OR              reduce using rule 92 (addTypeId -> .)
+    RIGHTPAR        reduce using rule 92 (addTypeId -> .)
+    COMA            reduce using rule 92 (addTypeId -> .)
+    SEMICOLON       reduce using rule 92 (addTypeId -> .)
+    LEFTBRACE       reduce using rule 92 (addTypeId -> .)
 
-    addTypeId                      shift and go to state 172
+    addTypeId                      shift and go to state 169
 
-state 135
+state 134
 
     (51) cst_PDT -> CST_INT addTypeInt .
 
@@ -2300,7 +2274,7 @@ state 135
     LEFTBRACE       reduce using rule 51 (cst_PDT -> CST_INT addTypeInt .)
 
 
-state 136
+state 135
 
     (52) cst_PDT -> CST_FLOAT addTypeFloat .
 
@@ -2323,7 +2297,7 @@ state 136
     LEFTBRACE       reduce using rule 52 (cst_PDT -> CST_FLOAT addTypeFloat .)
 
 
-state 137
+state 136
 
     (53) cst_PDT -> CST_CHAR addTypeChar .
 
@@ -2346,48 +2320,48 @@ state 137
     LEFTBRACE       reduce using rule 53 (cst_PDT -> CST_CHAR addTypeChar .)
 
 
-state 138
+state 137
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR . createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (19) createJQif -> .
 
     THEN            reduce using rule 19 (createJQif -> .)
 
-    createJQif                     shift and go to state 173
+    createJQif                     shift and go to state 170
+
+state 138
+
+    (95) read -> READ LEFTPAR id_list RIGHTPAR . SEMICOLON
+
+    SEMICOLON       shift and go to state 171
+
 
 state 139
 
-    (96) read -> READ LEFTPAR id_list RIGHTPAR . SEMICOLON
+    (96) id_list -> ID addRead . id_listFunction
+    (97) id_listFunction -> . COMA id_list
+    (98) id_listFunction -> .
+
+    COMA            shift and go to state 173
+    RIGHTPAR        reduce using rule 98 (id_listFunction -> .)
+
+    id_listFunction                shift and go to state 172
+
+state 140
+
+    (100) print -> PRINT LEFTPAR printFunction RIGHTPAR . SEMICOLON
 
     SEMICOLON       shift and go to state 174
 
 
-state 140
-
-    (97) id_list -> ID addRead . id_listFunction
-    (98) id_listFunction -> . COMA id_list
-    (99) id_listFunction -> .
-
-    COMA            shift and go to state 176
-    RIGHTPAR        reduce using rule 99 (id_listFunction -> .)
-
-    id_listFunction                shift and go to state 175
-
 state 141
 
-    (101) print -> PRINT LEFTPAR printFunction RIGHTPAR . SEMICOLON
-
-    SEMICOLON       shift and go to state 177
-
-
-state 142
-
-    (102) printFunction -> print_param COMA . printFunction2
-    (104) printFunction2 -> . printFunction
-    (102) printFunction -> . print_param COMA printFunction2
-    (103) printFunction -> . print_param
-    (106) print_param -> . Expression2 addPrint
-    (107) print_param -> . CST_STRING addPrintString
+    (101) printFunction -> print_param COMA . printFunction2
+    (103) printFunction2 -> . printFunction
+    (101) printFunction -> . print_param COMA printFunction2
+    (102) printFunction -> . print_param
+    (105) print_param -> . Expression2 addPrint
+    (106) print_param -> . CST_STRING addPrintString
     (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
     (59) Expression2 -> . Expression3 opMatrix
     (60) Expression2 -> . Expression3 evaluateExp2
@@ -2404,7 +2378,7 @@ state 142
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     CST_STRING      shift and go to state 115
     LEFTPAR         shift and go to state 97
@@ -2414,8 +2388,8 @@ state 142
     CST_CHAR        shift and go to state 108
 
     print_param                    shift and go to state 113
-    printFunction2                 shift and go to state 178
-    printFunction                  shift and go to state 179
+    printFunction2                 shift and go to state 175
+    printFunction                  shift and go to state 176
     Expression2                    shift and go to state 114
     Expression3                    shift and go to state 99
     exp                            shift and go to state 100
@@ -2424,23 +2398,23 @@ state 142
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
+state 142
+
+    (105) print_param -> Expression2 addPrint .
+
+    COMA            reduce using rule 105 (print_param -> Expression2 addPrint .)
+    RIGHTPAR        reduce using rule 105 (print_param -> Expression2 addPrint .)
+
+
 state 143
 
-    (106) print_param -> Expression2 addPrint .
+    (106) print_param -> CST_STRING addPrintString .
 
-    COMA            reduce using rule 106 (print_param -> Expression2 addPrint .)
-    RIGHTPAR        reduce using rule 106 (print_param -> Expression2 addPrint .)
+    COMA            reduce using rule 106 (print_param -> CST_STRING addPrintString .)
+    RIGHTPAR        reduce using rule 106 (print_param -> CST_STRING addPrintString .)
 
 
 state 144
-
-    (107) print_param -> CST_STRING addPrintString .
-
-    COMA            reduce using rule 107 (print_param -> CST_STRING addPrintString .)
-    RIGHTPAR        reduce using rule 107 (print_param -> CST_STRING addPrintString .)
-
-
-state 145
 
     (10) assignment -> ID EQUAL Expression2 SEMICOLON .
 
@@ -2455,19 +2429,12 @@ state 145
     RIGHTBRACE      reduce using rule 10 (assignment -> ID EQUAL Expression2 SEMICOLON .)
 
 
-state 146
+state 145
 
-    (109) module -> ID LEFTPAR moduleFunction RIGHTPAR . SEMICOLON
-
-    SEMICOLON       shift and go to state 180
-
-
-state 147
-
-    (120) moduleFunction -> Expression2 COMA . moduleFunction
-    (120) moduleFunction -> . Expression2 COMA moduleFunction
-    (121) moduleFunction -> . Expression2 RIGHTPAR
-    (122) moduleFunction -> .
+    (108) module -> ID checkFunctionExists generateERASize LEFTPAR . moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+    (125) moduleFunction -> . Expression2 generateParam nextParam COMA moduleFunction
+    (126) moduleFunction -> . Expression2 generateParam
+    (127) moduleFunction -> .
     (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
     (59) Expression2 -> . Expression3 opMatrix
     (60) Expression2 -> . Expression3 evaluateExp2
@@ -2484,17 +2451,17 @@ state 147
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
-    RIGHTPAR        reduce using rule 122 (moduleFunction -> .)
+    RIGHTPAR        reduce using rule 127 (moduleFunction -> .)
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
     CST_INT         shift and go to state 106
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    Expression2                    shift and go to state 118
-    moduleFunction                 shift and go to state 181
+    moduleFunction                 shift and go to state 177
+    Expression2                    shift and go to state 178
     Expression3                    shift and go to state 99
     exp                            shift and go to state 100
     term                           shift and go to state 101
@@ -2502,14 +2469,7 @@ state 147
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 148
-
-    (121) moduleFunction -> Expression2 RIGHTPAR .
-
-    RIGHTPAR        reduce using rule 121 (moduleFunction -> Expression2 RIGHTPAR .)
-
-
-state 149
+state 146
 
     (24) for -> FOR forAssignment TO pushJumpFor . Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
@@ -2528,7 +2488,7 @@ state 149
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -2536,7 +2496,7 @@ state 149
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    Expression2                    shift and go to state 182
+    Expression2                    shift and go to state 179
     Expression3                    shift and go to state 99
     exp                            shift and go to state 100
     term                           shift and go to state 101
@@ -2544,21 +2504,21 @@ state 149
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 150
+state 147
 
     (28) forAssignment -> ID EQUAL CST_INT .
 
     TO              reduce using rule 28 (forAssignment -> ID EQUAL CST_INT .)
 
 
-state 151
+state 148
 
     (33) while -> WHILE pushLoop LEFTPAR Expression2 . RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTPAR        shift and go to state 183
+    RIGHTPAR        shift and go to state 180
 
 
-state 152
+state 149
 
     (42) function -> functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration statement RIGHTBRACE .
 
@@ -2566,7 +2526,7 @@ state 152
     MAIN            reduce using rule 42 (function -> functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration statement RIGHTBRACE .)
 
 
-state 153
+state 150
 
     (88) factor -> LEFTPAR Expression2 RIGHTPAR .
 
@@ -2589,14 +2549,14 @@ state 153
     LEFTBRACE       reduce using rule 88 (factor -> LEFTPAR Expression2 RIGHTPAR .)
 
 
-state 154
+state 151
 
     (17) return -> RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON .
 
     RIGHTBRACE      reduce using rule 17 (return -> RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON .)
 
 
-state 155
+state 152
 
     (58) Expression2 -> Expression3 evaluateExp2 Expression22 . Expression2Nested
     (61) Expression2Nested -> . Expression3 evaluateExp2 Expression22 Expression2Nested
@@ -2614,7 +2574,7 @@ state 155
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -2622,15 +2582,15 @@ state 155
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    Expression3                    shift and go to state 184
-    Expression2Nested              shift and go to state 185
+    Expression3                    shift and go to state 181
+    Expression2Nested              shift and go to state 182
     exp                            shift and go to state 100
     term                           shift and go to state 101
     factor                         shift and go to state 102
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 156
+state 153
 
     (64) Expression22 -> AND . addOperator
     (87) addOperator -> .
@@ -2641,9 +2601,9 @@ state 156
     CST_FLOAT       reduce using rule 87 (addOperator -> .)
     CST_CHAR        reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 186
+    addOperator                    shift and go to state 183
 
-state 157
+state 154
 
     (65) Expression22 -> OR . addOperator
     (87) addOperator -> .
@@ -2654,9 +2614,9 @@ state 157
     CST_FLOAT       reduce using rule 87 (addOperator -> .)
     CST_CHAR        reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 187
+    addOperator                    shift and go to state 184
 
-state 158
+state 155
 
     (73) opMatrix -> EXCLAMATION addOperator .
 
@@ -2666,7 +2626,7 @@ state 158
     LEFTBRACE       reduce using rule 73 (opMatrix -> EXCLAMATION addOperator .)
 
 
-state 159
+state 156
 
     (74) opMatrix -> QUESTION addOperator .
 
@@ -2676,7 +2636,7 @@ state 159
     LEFTBRACE       reduce using rule 74 (opMatrix -> QUESTION addOperator .)
 
 
-state 160
+state 157
 
     (75) opMatrix -> DOLLARSIGN addOperator .
 
@@ -2686,7 +2646,7 @@ state 160
     LEFTBRACE       reduce using rule 75 (opMatrix -> DOLLARSIGN addOperator .)
 
 
-state 161
+state 158
 
     (66) Expression3 -> exp evaluateExp3 Expression33 . exp evaluateExp3
     (76) exp -> . term evaluateTerm expFunction
@@ -2700,7 +2660,7 @@ state 161
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -2708,15 +2668,54 @@ state 161
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    exp                            shift and go to state 188
+    exp                            shift and go to state 185
     term                           shift and go to state 101
     factor                         shift and go to state 102
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 162
+state 159
 
     (68) Expression33 -> GT . addOperator
+    (87) addOperator -> .
+
+    LEFTPAR         reduce using rule 87 (addOperator -> .)
+    ID              reduce using rule 87 (addOperator -> .)
+    CST_INT         reduce using rule 87 (addOperator -> .)
+    CST_FLOAT       reduce using rule 87 (addOperator -> .)
+    CST_CHAR        reduce using rule 87 (addOperator -> .)
+
+    addOperator                    shift and go to state 186
+
+state 160
+
+    (69) Expression33 -> LT . addOperator
+    (87) addOperator -> .
+
+    LEFTPAR         reduce using rule 87 (addOperator -> .)
+    ID              reduce using rule 87 (addOperator -> .)
+    CST_INT         reduce using rule 87 (addOperator -> .)
+    CST_FLOAT       reduce using rule 87 (addOperator -> .)
+    CST_CHAR        reduce using rule 87 (addOperator -> .)
+
+    addOperator                    shift and go to state 187
+
+state 161
+
+    (70) Expression33 -> NOTEQUAL . addOperator
+    (87) addOperator -> .
+
+    LEFTPAR         reduce using rule 87 (addOperator -> .)
+    ID              reduce using rule 87 (addOperator -> .)
+    CST_INT         reduce using rule 87 (addOperator -> .)
+    CST_FLOAT       reduce using rule 87 (addOperator -> .)
+    CST_CHAR        reduce using rule 87 (addOperator -> .)
+
+    addOperator                    shift and go to state 188
+
+state 162
+
+    (71) Expression33 -> ISEQUAL . addOperator
     (87) addOperator -> .
 
     LEFTPAR         reduce using rule 87 (addOperator -> .)
@@ -2728,45 +2727,6 @@ state 162
     addOperator                    shift and go to state 189
 
 state 163
-
-    (69) Expression33 -> LT . addOperator
-    (87) addOperator -> .
-
-    LEFTPAR         reduce using rule 87 (addOperator -> .)
-    ID              reduce using rule 87 (addOperator -> .)
-    CST_INT         reduce using rule 87 (addOperator -> .)
-    CST_FLOAT       reduce using rule 87 (addOperator -> .)
-    CST_CHAR        reduce using rule 87 (addOperator -> .)
-
-    addOperator                    shift and go to state 190
-
-state 164
-
-    (70) Expression33 -> NOTEQUAL . addOperator
-    (87) addOperator -> .
-
-    LEFTPAR         reduce using rule 87 (addOperator -> .)
-    ID              reduce using rule 87 (addOperator -> .)
-    CST_INT         reduce using rule 87 (addOperator -> .)
-    CST_FLOAT       reduce using rule 87 (addOperator -> .)
-    CST_CHAR        reduce using rule 87 (addOperator -> .)
-
-    addOperator                    shift and go to state 191
-
-state 165
-
-    (71) Expression33 -> ISEQUAL . addOperator
-    (87) addOperator -> .
-
-    LEFTPAR         reduce using rule 87 (addOperator -> .)
-    ID              reduce using rule 87 (addOperator -> .)
-    CST_INT         reduce using rule 87 (addOperator -> .)
-    CST_FLOAT       reduce using rule 87 (addOperator -> .)
-    CST_CHAR        reduce using rule 87 (addOperator -> .)
-
-    addOperator                    shift and go to state 192
-
-state 166
 
     (76) exp -> term evaluateTerm expFunction .
 
@@ -2785,7 +2745,7 @@ state 166
     LEFTBRACE       reduce using rule 76 (exp -> term evaluateTerm expFunction .)
 
 
-state 167
+state 164
 
     (79) expFunction -> PLUS . addOperator exp
     (87) addOperator -> .
@@ -2796,9 +2756,9 @@ state 167
     CST_FLOAT       reduce using rule 87 (addOperator -> .)
     CST_CHAR        reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 193
+    addOperator                    shift and go to state 190
 
-state 168
+state 165
 
     (80) expFunction -> MINUS . addOperator exp
     (87) addOperator -> .
@@ -2809,9 +2769,9 @@ state 168
     CST_FLOAT       reduce using rule 87 (addOperator -> .)
     CST_CHAR        reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 194
+    addOperator                    shift and go to state 191
 
-state 169
+state 166
 
     (82) term -> factor evaluateFactor termFunction .
 
@@ -2832,7 +2792,7 @@ state 169
     LEFTBRACE       reduce using rule 82 (term -> factor evaluateFactor termFunction .)
 
 
-state 170
+state 167
 
     (85) termFunction -> MULTIPLY . addOperator term
     (87) addOperator -> .
@@ -2843,9 +2803,9 @@ state 170
     CST_FLOAT       reduce using rule 87 (addOperator -> .)
     CST_CHAR        reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 195
+    addOperator                    shift and go to state 192
 
-state 171
+state 168
 
     (86) termFunction -> DIVIDE . addOperator term
     (87) addOperator -> .
@@ -2856,9 +2816,9 @@ state 171
     CST_FLOAT       reduce using rule 87 (addOperator -> .)
     CST_CHAR        reduce using rule 87 (addOperator -> .)
 
-    addOperator                    shift and go to state 196
+    addOperator                    shift and go to state 193
 
-state 172
+state 169
 
     (91) factor -> ID addOperandId addTypeId .
 
@@ -2881,131 +2841,112 @@ state 172
     LEFTBRACE       reduce using rule 91 (factor -> ID addOperandId addTypeId .)
 
 
-state 173
+state 170
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif . THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
 
-    THEN            shift and go to state 197
+    THEN            shift and go to state 194
 
+
+state 171
+
+    (95) read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .
+
+    RETURN          reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    IF              reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    COMMENT_TEXT    reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    READ            reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    PRINT           reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    ID              reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    FOR             reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    WHILE           reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    RIGHTBRACE      reduce using rule 95 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+
+
+state 172
+
+    (96) id_list -> ID addRead id_listFunction .
+
+    RIGHTPAR        reduce using rule 96 (id_list -> ID addRead id_listFunction .)
+
+
+state 173
+
+    (97) id_listFunction -> COMA . id_list
+    (96) id_list -> . ID addRead id_listFunction
+
+    ID              shift and go to state 111
+
+    id_list                        shift and go to state 195
 
 state 174
 
-    (96) read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .
+    (100) print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .
 
-    RETURN          reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    IF              reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    COMMENT_TEXT    reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    READ            reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    PRINT           reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    ID              reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    FOR             reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    WHILE           reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
-    RIGHTBRACE      reduce using rule 96 (read -> READ LEFTPAR id_list RIGHTPAR SEMICOLON .)
+    RETURN          reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    IF              reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    COMMENT_TEXT    reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    READ            reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    PRINT           reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    ID              reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    FOR             reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    WHILE           reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    RIGHTBRACE      reduce using rule 100 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
 
 
 state 175
 
-    (97) id_list -> ID addRead id_listFunction .
+    (101) printFunction -> print_param COMA printFunction2 .
 
-    RIGHTPAR        reduce using rule 97 (id_list -> ID addRead id_listFunction .)
+    RIGHTPAR        reduce using rule 101 (printFunction -> print_param COMA printFunction2 .)
 
 
 state 176
 
-    (98) id_listFunction -> COMA . id_list
-    (97) id_list -> . ID addRead id_listFunction
+    (103) printFunction2 -> printFunction .
 
-    ID              shift and go to state 111
+    RIGHTPAR        reduce using rule 103 (printFunction2 -> printFunction .)
 
-    id_list                        shift and go to state 198
 
 state 177
 
-    (101) print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .
+    (108) module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction . nullParam RIGHTPAR generateGosub SEMICOLON
+    (111) nullParam -> .
 
-    RETURN          reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    IF              reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    COMMENT_TEXT    reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    READ            reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    PRINT           reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    ID              reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    FOR             reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    WHILE           reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
-    RIGHTBRACE      reduce using rule 101 (print -> PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON .)
+    RIGHTPAR        reduce using rule 111 (nullParam -> .)
 
+    nullParam                      shift and go to state 196
 
 state 178
 
-    (102) printFunction -> print_param COMA printFunction2 .
+    (125) moduleFunction -> Expression2 . generateParam nextParam COMA moduleFunction
+    (126) moduleFunction -> Expression2 . generateParam
+    (113) generateParam -> .
 
-    RIGHTPAR        reduce using rule 102 (printFunction -> print_param COMA printFunction2 .)
+    COMA            reduce using rule 113 (generateParam -> .)
+    RIGHTPAR        reduce using rule 113 (generateParam -> .)
 
+    generateParam                  shift and go to state 197
 
 state 179
-
-    (104) printFunction2 -> printFunction .
-
-    RIGHTPAR        reduce using rule 104 (printFunction2 -> printFunction .)
-
-
-state 180
-
-    (109) module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .
-
-    RETURN          reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    IF              reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    COMMENT_TEXT    reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    READ            reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    PRINT           reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    ID              reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    FOR             reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    WHILE           reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    RIGHTBRACE      reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    MULTIPLY        reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    DIVIDE          reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    PLUS            reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    MINUS           reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    GT              reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    LT              reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    NOTEQUAL        reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    ISEQUAL         reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    EXCLAMATION     reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    QUESTION        reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    DOLLARSIGN      reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    AND             reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    OR              reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    RIGHTPAR        reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    COMA            reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    SEMICOLON       reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-    LEFTBRACE       reduce using rule 109 (module -> ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON .)
-
-
-state 181
-
-    (120) moduleFunction -> Expression2 COMA moduleFunction .
-
-    RIGHTPAR        reduce using rule 120 (moduleFunction -> Expression2 COMA moduleFunction .)
-
-
-state 182
 
     (24) for -> FOR forAssignment TO pushJumpFor Expression2 . createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (26) createQuadFor -> .
 
     LEFTBRACE       reduce using rule 26 (createQuadFor -> .)
 
-    createQuadFor                  shift and go to state 199
+    createQuadFor                  shift and go to state 198
 
-state 183
+state 180
 
     (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR . startLoop LEFTBRACE statement RIGHTBRACE endLoop
     (30) startLoop -> .
 
     LEFTBRACE       reduce using rule 30 (startLoop -> .)
 
-    startLoop                      shift and go to state 200
+    startLoop                      shift and go to state 199
 
-state 184
+state 181
 
     (61) Expression2Nested -> Expression3 . evaluateExp2 Expression22 Expression2Nested
     (62) Expression2Nested -> Expression3 . evaluateExp2
@@ -3018,9 +2959,9 @@ state 184
     SEMICOLON       reduce using rule 63 (evaluateExp2 -> .)
     LEFTBRACE       reduce using rule 63 (evaluateExp2 -> .)
 
-    evaluateExp2                   shift and go to state 201
+    evaluateExp2                   shift and go to state 200
 
-state 185
+state 182
 
     (58) Expression2 -> Expression3 evaluateExp2 Expression22 Expression2Nested .
 
@@ -3030,7 +2971,7 @@ state 185
     LEFTBRACE       reduce using rule 58 (Expression2 -> Expression3 evaluateExp2 Expression22 Expression2Nested .)
 
 
-state 186
+state 183
 
     (64) Expression22 -> AND addOperator .
 
@@ -3041,7 +2982,7 @@ state 186
     CST_CHAR        reduce using rule 64 (Expression22 -> AND addOperator .)
 
 
-state 187
+state 184
 
     (65) Expression22 -> OR addOperator .
 
@@ -3052,7 +2993,7 @@ state 187
     CST_CHAR        reduce using rule 65 (Expression22 -> OR addOperator .)
 
 
-state 188
+state 185
 
     (66) Expression3 -> exp evaluateExp3 Expression33 exp . evaluateExp3
     (72) evaluateExp3 -> .
@@ -3067,9 +3008,9 @@ state 188
     SEMICOLON       reduce using rule 72 (evaluateExp3 -> .)
     LEFTBRACE       reduce using rule 72 (evaluateExp3 -> .)
 
-    evaluateExp3                   shift and go to state 202
+    evaluateExp3                   shift and go to state 201
 
-state 189
+state 186
 
     (68) Expression33 -> GT addOperator .
 
@@ -3080,7 +3021,7 @@ state 189
     CST_CHAR        reduce using rule 68 (Expression33 -> GT addOperator .)
 
 
-state 190
+state 187
 
     (69) Expression33 -> LT addOperator .
 
@@ -3091,7 +3032,7 @@ state 190
     CST_CHAR        reduce using rule 69 (Expression33 -> LT addOperator .)
 
 
-state 191
+state 188
 
     (70) Expression33 -> NOTEQUAL addOperator .
 
@@ -3102,7 +3043,7 @@ state 191
     CST_CHAR        reduce using rule 70 (Expression33 -> NOTEQUAL addOperator .)
 
 
-state 192
+state 189
 
     (71) Expression33 -> ISEQUAL addOperator .
 
@@ -3113,7 +3054,7 @@ state 192
     CST_CHAR        reduce using rule 71 (Expression33 -> ISEQUAL addOperator .)
 
 
-state 193
+state 190
 
     (79) expFunction -> PLUS addOperator . exp
     (76) exp -> . term evaluateTerm expFunction
@@ -3127,7 +3068,7 @@ state 193
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -3135,13 +3076,13 @@ state 193
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    exp                            shift and go to state 203
+    exp                            shift and go to state 202
     term                           shift and go to state 101
     factor                         shift and go to state 102
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 194
+state 191
 
     (80) expFunction -> MINUS addOperator . exp
     (76) exp -> . term evaluateTerm expFunction
@@ -3155,7 +3096,7 @@ state 194
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -3163,13 +3104,13 @@ state 194
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    exp                            shift and go to state 204
+    exp                            shift and go to state 203
     term                           shift and go to state 101
     factor                         shift and go to state 102
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 195
+state 192
 
     (85) termFunction -> MULTIPLY addOperator . term
     (82) term -> . factor evaluateFactor termFunction
@@ -3181,7 +3122,32 @@ state 195
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+
+    LEFTPAR         shift and go to state 97
+    ID              shift and go to state 105
+    CST_INT         shift and go to state 106
+    CST_FLOAT       shift and go to state 107
+    CST_CHAR        shift and go to state 108
+
+    term                           shift and go to state 204
+    factor                         shift and go to state 102
+    cst_PDT                        shift and go to state 103
+    module                         shift and go to state 104
+
+state 193
+
+    (86) termFunction -> DIVIDE addOperator . term
+    (82) term -> . factor evaluateFactor termFunction
+    (83) term -> . factor evaluateFactor
+    (88) factor -> . LEFTPAR Expression2 RIGHTPAR
+    (89) factor -> . cst_PDT addOperandCst
+    (90) factor -> . module
+    (91) factor -> . ID addOperandId addTypeId
+    (51) cst_PDT -> . CST_INT addTypeInt
+    (52) cst_PDT -> . CST_FLOAT addTypeFloat
+    (53) cst_PDT -> . CST_CHAR addTypeChar
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -3194,60 +3160,53 @@ state 195
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 196
-
-    (86) termFunction -> DIVIDE addOperator . term
-    (82) term -> . factor evaluateFactor termFunction
-    (83) term -> . factor evaluateFactor
-    (88) factor -> . LEFTPAR Expression2 RIGHTPAR
-    (89) factor -> . cst_PDT addOperandCst
-    (90) factor -> . module
-    (91) factor -> . ID addOperandId addTypeId
-    (51) cst_PDT -> . CST_INT addTypeInt
-    (52) cst_PDT -> . CST_FLOAT addTypeFloat
-    (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
-
-    LEFTPAR         shift and go to state 97
-    ID              shift and go to state 105
-    CST_INT         shift and go to state 106
-    CST_FLOAT       shift and go to state 107
-    CST_CHAR        shift and go to state 108
-
-    term                           shift and go to state 206
-    factor                         shift and go to state 102
-    cst_PDT                        shift and go to state 103
-    module                         shift and go to state 104
-
-state 197
+state 194
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN . LEFTBRACE statement RIGHTBRACE ifElse updateJQ
 
-    LEFTBRACE       shift and go to state 207
+    LEFTBRACE       shift and go to state 206
 
+
+state 195
+
+    (97) id_listFunction -> COMA id_list .
+
+    RIGHTPAR        reduce using rule 97 (id_listFunction -> COMA id_list .)
+
+
+state 196
+
+    (108) module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam . RIGHTPAR generateGosub SEMICOLON
+
+    RIGHTPAR        shift and go to state 207
+
+
+state 197
+
+    (125) moduleFunction -> Expression2 generateParam . nextParam COMA moduleFunction
+    (126) moduleFunction -> Expression2 generateParam .
+    (114) nextParam -> .
+
+    RIGHTPAR        reduce using rule 126 (moduleFunction -> Expression2 generateParam .)
+    COMA            reduce using rule 114 (nextParam -> .)
+
+    nextParam                      shift and go to state 208
 
 state 198
 
-    (98) id_listFunction -> COMA id_list .
-
-    RIGHTPAR        reduce using rule 98 (id_listFunction -> COMA id_list .)
-
-
-state 199
-
     (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor . LEFTBRACE statement RIGHTBRACE updateQuadFor
-
-    LEFTBRACE       shift and go to state 208
-
-
-state 200
-
-    (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop . LEFTBRACE statement RIGHTBRACE endLoop
 
     LEFTBRACE       shift and go to state 209
 
 
-state 201
+state 199
+
+    (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop . LEFTBRACE statement RIGHTBRACE endLoop
+
+    LEFTBRACE       shift and go to state 210
+
+
+state 200
 
     (61) Expression2Nested -> Expression3 evaluateExp2 . Expression22 Expression2Nested
     (62) Expression2Nested -> Expression3 evaluateExp2 .
@@ -3258,12 +3217,12 @@ state 201
     COMA            reduce using rule 62 (Expression2Nested -> Expression3 evaluateExp2 .)
     SEMICOLON       reduce using rule 62 (Expression2Nested -> Expression3 evaluateExp2 .)
     LEFTBRACE       reduce using rule 62 (Expression2Nested -> Expression3 evaluateExp2 .)
-    AND             shift and go to state 156
-    OR              shift and go to state 157
+    AND             shift and go to state 153
+    OR              shift and go to state 154
 
-    Expression22                   shift and go to state 210
+    Expression22                   shift and go to state 211
 
-state 202
+state 201
 
     (66) Expression3 -> exp evaluateExp3 Expression33 exp evaluateExp3 .
 
@@ -3278,7 +3237,7 @@ state 202
     LEFTBRACE       reduce using rule 66 (Expression3 -> exp evaluateExp3 Expression33 exp evaluateExp3 .)
 
 
-state 203
+state 202
 
     (79) expFunction -> PLUS addOperator exp .
 
@@ -3297,7 +3256,7 @@ state 203
     LEFTBRACE       reduce using rule 79 (expFunction -> PLUS addOperator exp .)
 
 
-state 204
+state 203
 
     (80) expFunction -> MINUS addOperator exp .
 
@@ -3316,7 +3275,7 @@ state 204
     LEFTBRACE       reduce using rule 80 (expFunction -> MINUS addOperator exp .)
 
 
-state 205
+state 204
 
     (85) termFunction -> MULTIPLY addOperator term .
 
@@ -3337,7 +3296,7 @@ state 205
     LEFTBRACE       reduce using rule 85 (termFunction -> MULTIPLY addOperator term .)
 
 
-state 206
+state 205
 
     (86) termFunction -> DIVIDE addOperator term .
 
@@ -3358,74 +3317,30 @@ state 206
     LEFTBRACE       reduce using rule 86 (termFunction -> DIVIDE addOperator term .)
 
 
-state 207
+state 206
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE . statement RIGHTBRACE ifElse updateJQ
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
-    RETURN          shift and go to state 63
-    IF              shift and go to state 64
-    COMMENT_TEXT    shift and go to state 65
-    READ            shift and go to state 66
-    PRINT           shift and go to state 67
-    ID              shift and go to state 68
-    FOR             shift and go to state 69
-    WHILE           shift and go to state 70
-
-    statement                      shift and go to state 211
-    return                         shift and go to state 54
-    if                             shift and go to state 55
-    comment                        shift and go to state 56
-    read                           shift and go to state 57
-    print                          shift and go to state 58
-    assignment                     shift and go to state 59
-    module                         shift and go to state 60
-    for                            shift and go to state 61
-    while                          shift and go to state 62
-
-state 208
-
-    (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE . statement RIGHTBRACE updateQuadFor
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
-    (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
-    (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
-    (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
-    (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
-    (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
-    (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
-
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -3446,30 +3361,46 @@ state 208
     for                            shift and go to state 61
     while                          shift and go to state 62
 
+state 207
+
+    (108) module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR . generateGosub SEMICOLON
+    (112) generateGosub -> .
+
+    SEMICOLON       reduce using rule 112 (generateGosub -> .)
+
+    generateGosub                  shift and go to state 213
+
+state 208
+
+    (125) moduleFunction -> Expression2 generateParam nextParam . COMA moduleFunction
+
+    COMA            shift and go to state 214
+
+
 state 209
 
-    (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE . statement RIGHTBRACE endLoop
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE . statement RIGHTBRACE updateQuadFor
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -3479,7 +3410,7 @@ state 209
     FOR             shift and go to state 69
     WHILE           shift and go to state 70
 
-    statement                      shift and go to state 213
+    statement                      shift and go to state 215
     return                         shift and go to state 54
     if                             shift and go to state 55
     comment                        shift and go to state 56
@@ -3491,6 +3422,50 @@ state 209
     while                          shift and go to state 62
 
 state 210
+
+    (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE . statement RIGHTBRACE endLoop
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
+    (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
+    (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
+    (32) comment -> . COMMENT_TEXT
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (10) assignment -> . ID EQUAL Expression2 SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+    (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
+    (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
+
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
+    RETURN          shift and go to state 63
+    IF              shift and go to state 64
+    COMMENT_TEXT    shift and go to state 65
+    READ            shift and go to state 66
+    PRINT           shift and go to state 67
+    ID              shift and go to state 68
+    FOR             shift and go to state 69
+    WHILE           shift and go to state 70
+
+    statement                      shift and go to state 216
+    return                         shift and go to state 54
+    if                             shift and go to state 55
+    comment                        shift and go to state 56
+    read                           shift and go to state 57
+    print                          shift and go to state 58
+    assignment                     shift and go to state 59
+    module                         shift and go to state 60
+    for                            shift and go to state 61
+    while                          shift and go to state 62
+
+state 211
 
     (61) Expression2Nested -> Expression3 evaluateExp2 Expression22 . Expression2Nested
     (61) Expression2Nested -> . Expression3 evaluateExp2 Expression22 Expression2Nested
@@ -3508,7 +3483,7 @@ state 210
     (51) cst_PDT -> . CST_INT addTypeInt
     (52) cst_PDT -> . CST_FLOAT addTypeFloat
     (53) cst_PDT -> . CST_CHAR addTypeChar
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
 
     LEFTPAR         shift and go to state 97
     ID              shift and go to state 105
@@ -3516,36 +3491,83 @@ state 210
     CST_FLOAT       shift and go to state 107
     CST_CHAR        shift and go to state 108
 
-    Expression3                    shift and go to state 184
-    Expression2Nested              shift and go to state 214
+    Expression3                    shift and go to state 181
+    Expression2Nested              shift and go to state 217
     exp                            shift and go to state 100
     term                           shift and go to state 101
     factor                         shift and go to state 102
     cst_PDT                        shift and go to state 103
     module                         shift and go to state 104
 
-state 211
+state 212
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement . RIGHTBRACE ifElse updateJQ
 
-    RIGHTBRACE      shift and go to state 215
-
-
-state 212
-
-    (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement . RIGHTBRACE updateQuadFor
-
-    RIGHTBRACE      shift and go to state 216
+    RIGHTBRACE      shift and go to state 218
 
 
 state 213
 
-    (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement . RIGHTBRACE endLoop
+    (108) module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub . SEMICOLON
 
-    RIGHTBRACE      shift and go to state 217
+    SEMICOLON       shift and go to state 219
 
 
 state 214
+
+    (125) moduleFunction -> Expression2 generateParam nextParam COMA . moduleFunction
+    (125) moduleFunction -> . Expression2 generateParam nextParam COMA moduleFunction
+    (126) moduleFunction -> . Expression2 generateParam
+    (127) moduleFunction -> .
+    (58) Expression2 -> . Expression3 evaluateExp2 Expression22 Expression2Nested
+    (59) Expression2 -> . Expression3 opMatrix
+    (60) Expression2 -> . Expression3 evaluateExp2
+    (66) Expression3 -> . exp evaluateExp3 Expression33 exp evaluateExp3
+    (67) Expression3 -> . exp evaluateExp3
+    (76) exp -> . term evaluateTerm expFunction
+    (77) exp -> . term evaluateTerm
+    (82) term -> . factor evaluateFactor termFunction
+    (83) term -> . factor evaluateFactor
+    (88) factor -> . LEFTPAR Expression2 RIGHTPAR
+    (89) factor -> . cst_PDT addOperandCst
+    (90) factor -> . module
+    (91) factor -> . ID addOperandId addTypeId
+    (51) cst_PDT -> . CST_INT addTypeInt
+    (52) cst_PDT -> . CST_FLOAT addTypeFloat
+    (53) cst_PDT -> . CST_CHAR addTypeChar
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
+
+    RIGHTPAR        reduce using rule 127 (moduleFunction -> .)
+    LEFTPAR         shift and go to state 97
+    ID              shift and go to state 105
+    CST_INT         shift and go to state 106
+    CST_FLOAT       shift and go to state 107
+    CST_CHAR        shift and go to state 108
+
+    Expression2                    shift and go to state 178
+    moduleFunction                 shift and go to state 220
+    Expression3                    shift and go to state 99
+    exp                            shift and go to state 100
+    term                           shift and go to state 101
+    factor                         shift and go to state 102
+    cst_PDT                        shift and go to state 103
+    module                         shift and go to state 104
+
+state 215
+
+    (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement . RIGHTBRACE updateQuadFor
+
+    RIGHTBRACE      shift and go to state 221
+
+
+state 216
+
+    (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement . RIGHTBRACE endLoop
+
+    RIGHTBRACE      shift and go to state 222
+
+
+state 217
 
     (61) Expression2Nested -> Expression3 evaluateExp2 Expression22 Expression2Nested .
 
@@ -3555,13 +3577,13 @@ state 214
     LEFTBRACE       reduce using rule 61 (Expression2Nested -> Expression3 evaluateExp2 Expression22 Expression2Nested .)
 
 
-state 215
+state 218
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE . ifElse updateJQ
     (21) ifElse -> . ELSE createJQelse LEFTBRACE statement RIGHTBRACE
     (22) ifElse -> .
 
-    ELSE            shift and go to state 219
+    ELSE            shift and go to state 224
     RETURN          reduce using rule 22 (ifElse -> .)
     IF              reduce using rule 22 (ifElse -> .)
     COMMENT_TEXT    reduce using rule 22 (ifElse -> .)
@@ -3572,9 +3594,48 @@ state 215
     WHILE           reduce using rule 22 (ifElse -> .)
     RIGHTBRACE      reduce using rule 22 (ifElse -> .)
 
-    ifElse                         shift and go to state 218
+    ifElse                         shift and go to state 223
 
-state 216
+state 219
+
+    (108) module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .
+
+    RETURN          reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    IF              reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    COMMENT_TEXT    reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    READ            reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    PRINT           reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    ID              reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    FOR             reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    WHILE           reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    RIGHTBRACE      reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    MULTIPLY        reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    DIVIDE          reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    PLUS            reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    MINUS           reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    GT              reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    LT              reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    NOTEQUAL        reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    ISEQUAL         reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    EXCLAMATION     reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    QUESTION        reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    DOLLARSIGN      reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    AND             reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    OR              reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    RIGHTPAR        reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    COMA            reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    SEMICOLON       reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+    LEFTBRACE       reduce using rule 108 (module -> ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON .)
+
+
+state 220
+
+    (125) moduleFunction -> Expression2 generateParam nextParam COMA moduleFunction .
+
+    RIGHTPAR        reduce using rule 125 (moduleFunction -> Expression2 generateParam nextParam COMA moduleFunction .)
+
+
+state 221
 
     (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE . updateQuadFor
     (27) updateQuadFor -> .
@@ -3589,9 +3650,9 @@ state 216
     WHILE           reduce using rule 27 (updateQuadFor -> .)
     RIGHTBRACE      reduce using rule 27 (updateQuadFor -> .)
 
-    updateQuadFor                  shift and go to state 220
+    updateQuadFor                  shift and go to state 225
 
-state 217
+state 222
 
     (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE . endLoop
     (31) endLoop -> .
@@ -3606,9 +3667,9 @@ state 217
     WHILE           reduce using rule 31 (endLoop -> .)
     RIGHTBRACE      reduce using rule 31 (endLoop -> .)
 
-    endLoop                        shift and go to state 221
+    endLoop                        shift and go to state 226
 
-state 218
+state 223
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse . updateJQ
     (20) updateJQ -> .
@@ -3623,18 +3684,18 @@ state 218
     WHILE           reduce using rule 20 (updateJQ -> .)
     RIGHTBRACE      reduce using rule 20 (updateJQ -> .)
 
-    updateJQ                       shift and go to state 222
+    updateJQ                       shift and go to state 227
 
-state 219
+state 224
 
     (21) ifElse -> ELSE . createJQelse LEFTBRACE statement RIGHTBRACE
     (23) createJQelse -> .
 
     LEFTBRACE       reduce using rule 23 (createJQelse -> .)
 
-    createJQelse                   shift and go to state 223
+    createJQelse                   shift and go to state 228
 
-state 220
+state 225
 
     (24) for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor .
 
@@ -3649,7 +3710,7 @@ state 220
     RIGHTBRACE      reduce using rule 24 (for -> FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor .)
 
 
-state 221
+state 226
 
     (33) while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop .
 
@@ -3664,7 +3725,7 @@ state 221
     RIGHTBRACE      reduce using rule 33 (while -> WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop .)
 
 
-state 222
+state 227
 
     (18) if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ .
 
@@ -3679,37 +3740,37 @@ state 222
     RIGHTBRACE      reduce using rule 18 (if -> IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ .)
 
 
-state 223
+state 228
 
     (21) ifElse -> ELSE createJQelse . LEFTBRACE statement RIGHTBRACE
 
-    LEFTBRACE       shift and go to state 224
+    LEFTBRACE       shift and go to state 229
 
 
-state 224
+state 229
 
     (21) ifElse -> ELSE createJQelse LEFTBRACE . statement RIGHTBRACE
-    (110) statement -> . return
-    (111) statement -> . if statement
-    (112) statement -> . comment statement
-    (113) statement -> . read statement
-    (114) statement -> . print statement
-    (115) statement -> . assignment statement
-    (116) statement -> . module statement
-    (117) statement -> . for statement
-    (118) statement -> . while statement
-    (119) statement -> .
+    (115) statement -> . return
+    (116) statement -> . if statement
+    (117) statement -> . comment statement
+    (118) statement -> . read statement
+    (119) statement -> . print statement
+    (120) statement -> . assignment statement
+    (121) statement -> . module statement
+    (122) statement -> . for statement
+    (123) statement -> . while statement
+    (124) statement -> .
     (17) return -> . RETURN LEFTPAR Expression2 RIGHTPAR SEMICOLON
     (18) if -> . IF LEFTPAR Expression2 RIGHTPAR createJQif THEN LEFTBRACE statement RIGHTBRACE ifElse updateJQ
     (32) comment -> . COMMENT_TEXT
-    (96) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
-    (101) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
+    (95) read -> . READ LEFTPAR id_list RIGHTPAR SEMICOLON
+    (100) print -> . PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON
     (10) assignment -> . ID EQUAL Expression2 SEMICOLON
-    (109) module -> . ID LEFTPAR moduleFunction RIGHTPAR SEMICOLON
+    (108) module -> . ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON
     (24) for -> . FOR forAssignment TO pushJumpFor Expression2 createQuadFor LEFTBRACE statement RIGHTBRACE updateQuadFor
     (33) while -> . WHILE pushLoop LEFTPAR Expression2 RIGHTPAR startLoop LEFTBRACE statement RIGHTBRACE endLoop
 
-    RIGHTBRACE      reduce using rule 119 (statement -> .)
+    RIGHTBRACE      reduce using rule 124 (statement -> .)
     RETURN          shift and go to state 63
     IF              shift and go to state 64
     COMMENT_TEXT    shift and go to state 65
@@ -3719,7 +3780,7 @@ state 224
     FOR             shift and go to state 69
     WHILE           shift and go to state 70
 
-    statement                      shift and go to state 225
+    statement                      shift and go to state 230
     return                         shift and go to state 54
     if                             shift and go to state 55
     comment                        shift and go to state 56
@@ -3730,14 +3791,14 @@ state 224
     for                            shift and go to state 61
     while                          shift and go to state 62
 
-state 225
+state 230
 
     (21) ifElse -> ELSE createJQelse LEFTBRACE statement . RIGHTBRACE
 
-    RIGHTBRACE      shift and go to state 226
+    RIGHTBRACE      shift and go to state 231
 
 
-state 226
+state 231
 
     (21) ifElse -> ELSE createJQelse LEFTBRACE statement RIGHTBRACE .
 

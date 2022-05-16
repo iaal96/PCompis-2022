@@ -1,23 +1,19 @@
 program myprog;
 var int i[1][1], j[1], k;
-
-function int test(int c, int d) {
-    var char x, y;
-    x = "a";
-    y = "b";
+function int uno(int c, int d) {
+    var int x, y;
+    x = 3;
+    y = 5;
 }
-
-function int test2(int a, int b) {
-    var char x, y;
-    x = "g";
-    y = "h";
+function int dos(int a, int b) {
+    var int x, y;
+    x = 5;
+    y = 3;
 }
-
 main() {
     var int c;
         float k;
     c = 4;
-    var float k;
     k = 1 + 2 - 3 * 4 / c;
     if (1 > 2) then {
         read(c);
@@ -34,4 +30,6 @@ main() {
     c = 1 | 0;
     read(i);
     hola();
+    uno(1, 2);
+    dos(3, 4);
 }

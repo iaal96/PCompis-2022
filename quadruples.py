@@ -117,6 +117,6 @@ class Quadruples(object):
 	@classmethod
 	def print_all(cls):
 		"""Imprime todos los cuadruplos de la lista"""
-		print("Quads ===============================")
+		print("CUADRUPLOS:")
 		for x in cls.quadruples:
 			x.print() 
