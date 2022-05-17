@@ -76,7 +76,8 @@ t_RIGHTBRACK = r'\]'
 t_LEFTBRACE = r'\{'
 t_RIGHTBRACE = r'\}'
 t_CST_INT = r'[0-9]+'
-t_CST_FLOAT = r'[0.9]+\.[0.9]+'
+t_CST_FLOAT     = r'[0-9]+\.[0-9]+'
+t_CST_CHAR      = r'("(\\"|[^"])?")|(\'(\\\'|[^\'])?\')'
 t_CST_STRING    = r'("(\\"|[^"])*")|(\'(\\\'|[^\'])*\')'
 t_COMMENT_TEXT =  r'%%.*\n'
 
@@ -98,16 +99,15 @@ def t_newline(t):
 
 #Error
 def t_error(t):
-    print("Illegal character '%s' in line %d" % (t.value[0], t.lexer.lineno))
+    print("Caracter ilegal '%s' en la linea %d" % (t.value[0], t.lexer.lineno))
     t.lexer.skip(1)
     exit(0)
 
-def t_CST_CHAR(t):
-    r'\'[a-zA-Z]\''
-    t.value = t.value
-    return t
+#def t_CST_CHAR(t):
+ #   r'\'[a-zA-Z]\''
+  #  t.value = t.value
+   # return t
 
-lexer = lex.lex(errorlog=lex.NullLogger())
-print("Lexer generado.")
+lexer = lex.lex()
     
 lex.lex()

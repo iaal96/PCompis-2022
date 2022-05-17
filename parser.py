@@ -77,15 +77,15 @@ def p_assignment(t):
 	#Si id esta en currentScope, generar cuadruplo y asignar su valor en varTable
 	if t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
-			temp_quad = Quadruple("=", operands.pop(), None, t[1])
+			temp_quad = Quadruple("=", operands.peek(), '_', t[1])
 			Quadruples.push_quad(temp_quad)
-			variableTable[currentScope][t[1]]["value"] = t[3]
+			variableTable[currentScope][t[1]]["value"] = operands.pop()
 		else:
 			Error.type_mismatch(t[1],t.lexer.lineno - 1)
 	#Si id esta en globalScope, generar cuadruplo y asignar su valor en varTable
 	elif t[1] in variableTable["global"]:
 		if types.pop() == variableTable["global"][t[1]]["type"]:
-			temp_quad = Quadruple("=", operands.pop(), None, t[1])
+			temp_quad = Quadruple("=", operands.peek(), '_', t[1])
 			Quadruples.push_quad(temp_quad)
 			variableTable["global"][t[1]]["value"] = operands.pop()
 		else:
@@ -127,7 +127,7 @@ def p_createJQif(t):
 		if operands.peek() == 1 or operands.peek() == 0:
 			res = operands.pop()
 			operator = "GOTOF"
-			temp_quad = Quadruple(operator, res, None, None)
+			temp_quad = Quadruple(operator, res, '_', '_')
 			Quadruples.push_quad(temp_quad)
 			Quadruples.push_jump(-1)
 		else: 
@@ -140,7 +140,7 @@ def p_updateJQ(t):
 	#Actualizar cuadruplos GOTOF
 	tmp_end = Quadruples.pop_jump()
 	tmp_count = Quadruples.next_id
-	tmp_quad = Quadruples.update_jump_quad(tmp_end, tmp_count)
+	Quadruples.update_jump_quad(tmp_end, tmp_count)
 
 def p_ifElse(t):
 	'''ifElse : ELSE createJQelse LEFTBRACE statement RIGHTBRACE
@@ -220,7 +220,7 @@ def p_startLoop(t):
 			res = operands.pop()
 			operator = "GOTOF"
 			# Generar cuadruplo y hacerle push a la lista
-			tmp_quad = Quadruple(operator, res, None, None)
+			tmp_quad = Quadruple(operator, res, "_", "_")
 			Quadruples.push_quad(tmp_quad)
 			# Push al stack
 			Quadruples.push_jump(-1)
@@ -280,8 +280,8 @@ def p_function(t):
 	temp_quad = Quadruple("ENDFUNC", "_", "_", "_")
 	Quadruples.push_quad(temp_quad)
 	# Variables temporales = longitud del cuadruplo de funcion al maximo y resetear func_quads
-	functionDir[currentScope]["varLength"] = Quadruples.func_quads
-	Quadruples.func_quads = 0
+	functionDir[currentScope]["varLength"] = Quadruples.function_quads
+	Quadruples.function_quads = 0
 	currentScope = "global"
 
 def p_param(t):
@@ -318,6 +318,7 @@ def p_cst_PDT(t):
 	'''cst_PDT : CST_INT addTypeInt
 				| CST_FLOAT addTypeFloat
 				| CST_CHAR addTypeChar'''
+	t[0] = t[1]
 
 def p_addTypeInt(t):
 	'addTypeInt : '
@@ -460,19 +461,19 @@ def p_evaluateTerm(t):
 	'evaluateTerm : '
 	global temp
 	if operators.size() != 0:
-		# Generar cuadruplo para operadores de suma y resta
+		# Generate quadruple for add/subtract operators
 		if operators.peek() == "+" or operators.peek() == "-":
-			# Operandos pop
+			# Pop operands
 			rOp = operands.pop()
 			lOp = operands.pop()
-			# Operador pop
+			# Pop operator
 			oper = operators.pop()
-			# Tipos de pop
+			# Pop types
 			rType = types.pop()
 			lType = types.pop()
-			# Checar cubo semantico con tipos y operador
+			# Check semanticCube with types and operator
 			resType = semanticCube[(lType, rType, oper)]
-			# Checar tipo del resultado y evaluar expresion
+			# Check result type and evaluate expression
 			if resType != "error":
 				result = 0
 				if oper == "+": 
@@ -481,7 +482,7 @@ def p_evaluateTerm(t):
 					result = float(lOp) - float(rOp)
 				if result % 1 == 0:
 					result = int(result)
-				# Generar cuadruplo para expresion
+				# Generate quadruple for expression
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
@@ -509,19 +510,19 @@ def p_evaluateFactor(t):
 	'evaluateFactor : '
 	global temp
 	if operators.size() != 0:
-		# Generar cuadruplo para operadores de multiplicacion y division
+		# Generate quadruple for multiplication/division operators
 		if operators.peek() == "*" or operators.peek() == "/":
-			# Operandos pop
+			# Pop operands
 			rOp = operands.pop()
 			lOp = operands.pop()
-			# Operador pop
+			# Pop operator
 			oper = operators.pop()
-			# Tipos de pop
+			# Pop types
 			rType = types.pop()
 			lType = types.pop()
-			# Checar cubo semantico con tipos y operador
+			# Check semanticCube with types and operator
 			resType = semanticCube[(lType, rType, oper)]
-			# Checar tipo de resultado y evaluar expresion
+			# Check result type and evaluate expression
 			if resType != "error":
 				if oper == "*": 
 					result = float(lOp) * float(rOp)
@@ -529,16 +530,15 @@ def p_evaluateFactor(t):
 					result = float(lOp) / float(rOp)
 				if result % 1 == 0:
 					result = int(result)
-				# Generar cuadruplo para expresion
+				# Generate quadruple for expression
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
 				types.push(resType)
 				temp += 1
 			else:
-				print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
-				exit(0)
-
+				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
+				
 def p_termFunction(t):
 	'''termFunction : MULTIPLY addOperator term
 					| DIVIDE addOperator term '''
@@ -605,7 +605,7 @@ def p_addRead(t):
 	'addRead : '
 	#Genera cuadruplo Read
 	if t[-1] in variableTable[currentScope] or t[-1] in variableTable["global"]:
-		temp_quad = Quadruple("read", None, None, t[-1])
+		temp_quad = Quadruple("read", '_', '_', t[-1])
 		Quadruples.push_quad(temp_quad)
 	else:
 		Error.undefined_variable(t[-1], t.lexer.lineno)
@@ -623,7 +623,7 @@ def p_printFunction2(t):
 def p_addPrint(t):
 	'addPrint : '
 	#Genera cuadruplo print
-	temp_quad = Quadruple("print", None, None, operands.pop())
+	temp_quad = Quadruple("print", '_', '_', operands.pop())
 	Quadruples.push_quad(temp_quad)
 	types.pop()
 
@@ -635,7 +635,7 @@ def p_print_param(t):
 def p_addPrintString(t):
 	'addPrintString : '
 	#Agrega string al cuadruplo print
-	temp_quad = Quadruple("print", None, None, t[-1])
+	temp_quad = Quadruple("print", '_', '_', t[-1])
 	Quadruples.push_quad(temp_quad)
 
 def p_module(t):
