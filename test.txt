@@ -1,14 +1,14 @@
 program myprog;
 var int i[1][1], j[1], k;
 function int uno(int c, int d) {
-    var int x, y;
-    x = 3;
-    y = 5;
+    var char x, y;
+    x = 'a';
+    y = 'b';
 }
 function int dos(int a, int b) {
-    var int x, y;
-    x = 5;
-    y = 3;
+    var char x, y;
+    x = 'g';
+    y = 'h';
 }
 main() {
     var int c;
@@ -29,7 +29,6 @@ main() {
     c = 2 < 1;
     c = 1 | 0;
     read(i);
-    hola();
-    uno(1, 2);
+    uno(1, "a");
     dos(3, 4);
 }

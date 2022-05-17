@@ -3,6 +3,7 @@ import ply.yacc as yacc
 from EstructuraDatos import types, operands, operators, variableTable, Queue
 from EstructuraDatos import functionDir, temp, currentScope, currentType, semanticCube
 from quadruples import *
+from errores import Error
 
 tokens = lexer.tokens
 
@@ -42,8 +43,7 @@ def p_globalTable(t):
 	functionDir[currentScope]["vars"] = variableTable[currentScope]
     
 def p_error(t):
-	print("Error sintactico: Token '%s' no esperado en la linea %d" % (t.value, t.lexer.lineno))
-	exit(0)
+	Error.syntax(t.value, t.lexer.lineno)
 
 def p_main(t):
 	'main : mainTable MAIN LEFTPAR RIGHTPAR LEFTBRACE declaration statement RIGHTBRACE'
@@ -81,19 +81,17 @@ def p_assignment(t):
 			Quadruples.push_quad(temp_quad)
 			variableTable[currentScope][t[1]]["value"] = t[3]
 		else:
-			print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-			exit(0)
+			Error.type_mismatch(t[1],t.lexer.lineno - 1)
 	#Si id esta en globalScope, generar cuadruplo y asignar su valor en varTable
 	elif t[1] in variableTable["global"]:
 		if types.pop() == variableTable["global"][t[1]]["type"]:
 			temp_quad = Quadruple("=", operands.pop(), None, t[1])
 			Quadruples.push_quad(temp_quad)
+			variableTable["global"][t[1]]["value"] = operands.pop()
 		else:
-			print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-			exit(0)
+			Error.type_mismatch(t[1],t.lexer.lineno - 1)
 	else:
-		print("Error: use of undefined variable '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-		exit(0)
+		Error.undefined_variable(t[1], t.lexer.lineno - 1)
 
 def p_declaration(t):
 	'declaration : VAR declarationPDT'
@@ -133,11 +131,9 @@ def p_createJQif(t):
 			Quadruples.push_quad(temp_quad)
 			Quadruples.push_jump(-1)
 		else: 
-			print("Error: type mismatch for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-			exit(0)
+			Error.type_mismatch(t[1],t.lexer.lineno)
 	else: 
-		print("Error: type mismatch for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-		exit(0)
+		Error.type_mismatch(t[1],t.lexer.lineno)
 
 def p_updateJQ(t):
 	'updateJQ : '
@@ -181,11 +177,9 @@ def p_createQuadFor(t):
 			Quadruples.push_quad(temp_quad)
 			Quadruples.push_jump(-1)
 		else: 
-			print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-			exit(0)
+			Error.type_mismatch(t[1],t.lexer.lineno)
 	else: 
-		print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-		exit(0)
+		Error.type_mismatch(t[1],t.lexer.lineno)
 
 def p_updateQuadFor(t):
 	'updateQuadFor : '
@@ -210,8 +204,7 @@ def p_forAssignment(t):
 		Quadruples.push_quad(temp_quad)
 		variableTable["global"][t[1]]["value"] = t[3]
 	else:
-		print("Error: use of undefined variable '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-		exit(0)
+		Error.undefined_variable(t[1], t.lexer.lineno)
 
 
 def p_pushLoop(t):
@@ -232,11 +225,9 @@ def p_startLoop(t):
 			# Push al stack
 			Quadruples.push_jump(-1)
 		else:
-			print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-			exit(0)	
+			Error.type_mismatch(t[1],t.lexer.lineno)
 	else :
-		print("Error: type mismatch in assignment for '%s' in line %d" % (t[1], t.lexer.lineno - 1))
-		exit(0)	
+		Error.type_mismatch(t[1],t.lexer.lineno)
 
 def p_endLoop(t):
 	'endLoop : '
@@ -262,8 +253,7 @@ def p_addVarsToTable(t):
 	'addVarsToTable : '
 	#Si el ID ya existe en el scope o global, dar error
 	if t[-1] in variableTable[currentScope]:
-		print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
-		exit(0)
+		Error.redefinition_of_variable(t[-1], t.lexer.lineno)
 	else:
 		# Agregar ID actual a variableTable(scope)
 		variableTable[currentScope][t[-1]] = {"type": currentType}
@@ -306,8 +296,7 @@ def p_addFuncParams(t):
 	'addFuncParams : '
 	# Si parametro de la funcion existe en el scope, dar error
 	if t[-1] in variableTable[currentScope]:
-		print("Error: redefinition of variable '%s' in line %d." % (t[-1], t.lexer.lineno))
-		exit(0)
+		Error.redefinition_of_variable(t[-1], t.lexer.lineno)
 	else:
 		# Agregar parametro de la funcion a variableTable de currentScope
 		variableTable[currentScope][t[-1]] = {"type": currentType}
@@ -343,24 +332,23 @@ def p_addTypeChar(t):
 	types.push("char")
 
 def p_addFuncToDir(t):
-    'addFuncToDir : '
-    # Si la funcion ya existe en scope global, lanzar error
-    if t[-1] in variableTable["global"]:
-        print("Error: redefinition of '%s' in line %d." % (t[-1], t.lexer.lineno))
-        exit(0)
-    else:
-        global currentScope
-        global currentType
-        # Agregar funcion a variableTable de currentScope
-        variableTable["global"][t[-1]] = {"type": currentType}
-        # Cambiar scope a nuevo id de la funcion
-        currentScope = t[-1]
-        # Inicializar variableTable y functionDir para nuevo id de la funcion
-        variableTable[currentScope] = {}
-        functionDir[currentScope] = {}
-        # Establecer nuevo tipo de funcion y vars como referencia a variableTable[currentScope]
-        functionDir[currentScope]["type"] = currentType
-        functionDir[currentScope]["vars"] = variableTable[currentScope]
+	'addFuncToDir : '
+	# If function exists in global scope, throw an error
+	if t[-1] in variableTable["global"]:
+		Error.redefinition_of_variable(t[-1], t.lexer.lineno)
+	else:
+		global currentScope
+		global currentType
+		# Add function to variableTable of currentScope
+		variableTable["global"][t[-1]] = {"type": currentType}
+		# Change scope to new function id
+		currentScope = t[-1]
+		# Initialize variableTable and functionDir for new function id
+		variableTable[currentScope] = {}
+		functionDir[currentScope] = {}
+		# Set new function type and vars as reference to variableTable[currentScope]
+		functionDir[currentScope]["type"] = currentType
+		functionDir[currentScope]["vars"] = variableTable[currentScope]
 
 def p_Expression2(t):
     '''Expression2 : Expression3 evaluateExp2 Expression22 Expression2Nested
@@ -394,8 +382,7 @@ def p_evaluateExp2(t):
 				lOp = int(lOp)
 				rOp = int(rOp)
 				if (lOp != 0 and lOp != 1) or (rOp != 0 and rOp != 1):
-					print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
-					exit(0)
+					Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
 				#Evaluar expresion y hacerle push a cuadruplo
 				if oper == "|":
 					result = lOp or rOp
@@ -407,8 +394,7 @@ def p_evaluateExp2(t):
 				types.push(resType)
 				temp += 1
 			else:
-				print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
-				exit(0)
+				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
 
 def p_Expression22(t):
     '''Expression22 : AND addOperator
@@ -459,8 +445,7 @@ def p_evaluateExp3(t):
 				types.push(resType)
 				temp += 1
 			else:
-				print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
-				exit(0)
+				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
 
 def p_opMatrix(t):
 	'''opMatrix : EXCLAMATION addOperator
@@ -503,8 +488,7 @@ def p_evaluateTerm(t):
 				types.push(resType)
 				temp += 1
 			else:
-				print("Error: type mismatch between '%s' and '%s' in line %d" % (lOp, rOp, t.lexer.lineno))
-				exit(0)
+				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
 
 
 def p_expFunction(t):
@@ -581,7 +565,7 @@ def p_addTypeId(t):
 	elif t[-2] in variableTable["global"]:
 		types.push(variableTable["global"][t[-2]]["type"])
 	else:
-		print("Error: use of undefined '%s' used in line %d" % (t[-1], t.lexer.lineno))
+		Error.undefined_variable(t[-1], t.lexer.lineno)
 
 
 def p_addOperandCst(t):
@@ -596,18 +580,15 @@ def p_addOperandId(t):
 		if "value" in variableTable[currentScope][t[-1]]:
 			operands.push(variableTable[currentScope][t[-1]]["value"])
 		else:
-			print("Error: variable '%s' en linea %d no tiene asignada un valor" %(t[-1], t.lexer.lineno))
-			exit(0)
+			Error.variable_has_no_assigned_value(t[-1], t.lexer.lineno)
 	#Agregar el valor del operando de global scope al stack de operandos
 	elif t[-1] in variableTable["global"]:
 		if "value" in variableTable["global"][t[-1]]:
 			operands.push(variableTable["global"][t[-1]]["value"])
 		else:
-			print("Error: variable '%s' en linea %d no tiene asignada un valor" %(t[-1], t.lexer.lineno))
-			exit(0)
+			Error.variable_has_no_assigned_value(t[-1], t.lexer.lineno)
 	else:
-		print("Error: use of undefined variable '%s' in line %d" % (t[-1], t.lexer.lineno))
-		exit(0)
+		Error.undefined_variable(t[-1], t.lexer.lineno)
 
 
 def p_read(t):
@@ -627,7 +608,7 @@ def p_addRead(t):
 		temp_quad = Quadruple("read", None, None, t[-1])
 		Quadruples.push_quad(temp_quad)
 	else:
-		print("Error: use of undefined variable '%s' used in line %d" % (t[-1], t.lexer.lineno))
+		Error.undefined_variable(t[-1], t.lexer.lineno)
 
 def p_print(t):
 	'print : PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON'
@@ -663,8 +644,7 @@ def p_module(t):
 def p_checkFunctionExists(t):
 	'checkFunctionExists : '
 	if t[-1] not in functionDir:
-		print("Error: use of undefined module '%s' in line %d" % (t[-1], t.lexer.lineno))
-		exit(0)
+		Error.undefined_module(t[-1], t.lexer.lineno)
 	global funcName
 	funcName = t[-1]
 
@@ -682,8 +662,7 @@ def p_nullParam(t):
 	global k
 	global funcName
 	if k < len(functionDir[funcName]["params"].values()):
-		print("Error: unexpected number of arguments in module '%s' call in line %d." % (funcName, t.lexer.lineno))
-		exit(0)
+		Error.unexpected_number_of_arguments(funcName, t.lexer.lineno)
 
 
 def p_generateGosub(t):
@@ -698,14 +677,12 @@ def p_generateParam(t):
 	argType = types.pop()
 	paramList = functionDir[funcName]["params"].values()
 	if k > len(paramList):
-		print("Error: unexpected number of arguments in module '%s' call in line %d." % (funcName, t.lexer.lineno))
-		exit(0)
+		Error.unexpected_number_of_arguments(funcName, t.lexer.lineno)
 	if argType == paramList[-k]:
 		tmp_quad = Quadruple("PARAM", arg, '_', "param%d" % k)
 		Quadruples.push_quad(tmp_quad)
 	else:
-		print("Error: type mismatch in module '%s' call in line %d." % (funcName, t.lexer.lineno))
-		exit(0)
+		Error.type_mismatch_module(funcName, t.lexer.lineno)
 
 def p_nextParam(t):
 	'nextParam : '
