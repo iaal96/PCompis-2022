@@ -1,4 +1,4 @@
 # Proyecto Compiladores
 Ivan Anguiano A00817460
  Proyecto Compiladores FJ22
-# Avance: Cubo semantico, Tabla de Variables y Directorio de procedimiento hechos. Cuadruplos de estatutos lineales y algunos condicionales (if/else) . Falta while y for
+# Avance: Cuadruplos de ciclos (while, for) y generacion de codigo de funciones listo. Falta agregar prioridades (el compilador ignora los parentesis en operaciones aritmeticas)
