@@ -334,20 +334,20 @@ def p_addTypeChar(t):
 
 def p_addFuncToDir(t):
 	'addFuncToDir : '
-	# If function exists in global scope, throw an error
+	# Si la funcion existe en global scope, dar error
 	if t[-1] in variableTable["global"]:
 		Error.redefinition_of_variable(t[-1], t.lexer.lineno)
 	else:
 		global currentScope
 		global currentType
-		# Add function to variableTable of currentScope
+		# Agregar funcion a variableTable de currentScope
 		variableTable["global"][t[-1]] = {"type": currentType}
-		# Change scope to new function id
+		# Cambiar scope al nuevo id de la funcion
 		currentScope = t[-1]
-		# Initialize variableTable and functionDir for new function id
+		# Inicializar variableTable y functionDir por nuevo id de la funcion
 		variableTable[currentScope] = {}
 		functionDir[currentScope] = {}
-		# Set new function type and vars as reference to variableTable[currentScope]
+		# Definir nuevo tipo de funcion y vars como referencia a variableTable[currentScope]
 		functionDir[currentScope]["type"] = currentType
 		functionDir[currentScope]["vars"] = variableTable[currentScope]
 
@@ -461,19 +461,19 @@ def p_evaluateTerm(t):
 	'evaluateTerm : '
 	global temp
 	if operators.size() != 0:
-		# Generate quadruple for add/subtract operators
+		# Generar cuadruplos para operadores de suma y resta
 		if operators.peek() == "+" or operators.peek() == "-":
-			# Pop operands
+			# Operandos pop
 			rOp = operands.pop()
 			lOp = operands.pop()
-			# Pop operator
+			# Operador pop
 			oper = operators.pop()
-			# Pop types
+			# Tipos de pop
 			rType = types.pop()
 			lType = types.pop()
-			# Check semanticCube with types and operator
+			# Checar cubo semantico con tipos y operadores
 			resType = semanticCube[(lType, rType, oper)]
-			# Check result type and evaluate expression
+			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				result = 0
 				if oper == "+": 
@@ -482,7 +482,7 @@ def p_evaluateTerm(t):
 					result = float(lOp) - float(rOp)
 				if result % 1 == 0:
 					result = int(result)
-				# Generate quadruple for expression
+				# Generar cuadruplo para expresion
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
@@ -498,7 +498,7 @@ def p_expFunction(t):
 
 def p_setVoidType(t):
 	'setVoidType : '
-	# Establecer void como currentType
+	# Definir void como currentType
 	global currentType
 	currentType = t[-1]
 
@@ -510,19 +510,19 @@ def p_evaluateFactor(t):
 	'evaluateFactor : '
 	global temp
 	if operators.size() != 0:
-		# Generate quadruple for multiplication/division operators
+		# Generar cuadruplos para operadores de multiplicacion y division
 		if operators.peek() == "*" or operators.peek() == "/":
-			# Pop operands
+			# Operandos pop
 			rOp = operands.pop()
 			lOp = operands.pop()
-			# Pop operator
+			# Operador pop
 			oper = operators.pop()
-			# Pop types
+			# Tipos de pop
 			rType = types.pop()
 			lType = types.pop()
-			# Check semanticCube with types and operator
+			# Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
-			# Check result type and evaluate expression
+			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				if oper == "*": 
 					result = float(lOp) * float(rOp)
@@ -530,7 +530,7 @@ def p_evaluateFactor(t):
 					result = float(lOp) / float(rOp)
 				if result % 1 == 0:
 					result = int(result)
-				# Generate quadruple for expression
+				# Generar cuadruplo para expresion
 				temp_quad = Quadruple(oper, lOp, rOp, result)
 				Quadruples.push_quad(temp_quad)
 				operands.push(result)
