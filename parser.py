@@ -270,19 +270,31 @@ def p_addVarsToTable(t):
 	else:
 		# Agregar ID actual a variableTable(scope)
 		variableTable[currentScope][t[-1]] = {"type": currentType}
+		global arrMatId
+		arrMatId = t[-1]
 
 def p_varsComa(t):
 	'''varsComa : COMA vars
 				| '''
 
 def p_varsMatrix(t):
-	'''varsMatrix : LEFTBRACK CST_INT RIGHTBRACK
+	'''varsMatrix : LEFTBRACK CST_INT RIGHTBRACK setCols
 				  | '''
 
 #varsArray: Declaracion de arreglo
 def p_varsArray(t):
-	'''varsArray : LEFTBRACK CST_INT RIGHTBRACK varsMatrix
+	'''varsArray : LEFTBRACK CST_INT RIGHTBRACK setRows varsMatrix
 				 | '''
+
+def p_setRows(t):
+	'setRows : '
+	global arrMatId
+	variableTable[currentScope][arrMatId]["rows"] = t[-2]
+
+def p_setCols(t):
+	'setCols : '
+	global arrMatId
+	variableTable[currentScope][arrMatId]["cols"] = t[-2]
 
 #function: Crea cuadruplo ENDFUNC y define tabla de variables locales.
 def p_function(t):
