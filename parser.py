@@ -512,7 +512,7 @@ def p_evaluateTerm(t):
 				types.push(resType)
 				temp += 1
 			else:
-				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
+				Error.operation_type_mismatch(lOp, rOp, t.lexer.lineno)
 
 
 def p_expFunction(t):
@@ -574,10 +574,19 @@ def p_addOperator(t):
 	operators.push(t[-1])
 
 def p_factor(t):
-	'''factor : LEFTPAR Expression2 RIGHTPAR
+	'''factor : LEFTPAR addParenthesis Expression2 RIGHTPAR removeParenthesis
 			  | cst_PDT addOperandCst
 			  | module
 			  | ID addOperandId addTypeId'''
+
+def p_addParenthesis(t):
+	'addParenthesis : '
+	operators.push("(")
+
+def p_removeParenthesis(t):
+	'removeParenthesis : '
+	operators.pop()
+
 
 #def p_addOperand(t):
 	#'addOperand : '
