@@ -4,7 +4,13 @@ class Error:
 	@staticmethod
 	def type_mismatch(t, lineno):
 		" error type mismatch "
-		print("Error: type mismatch en asignacion de '%s' en la linea %d" % (t, lineno))
+		print("Error: type mismatch en asignacion de '%s' en la linea %d." % (t, lineno))
+		exit(0)
+
+	@staticmethod
+	def condition_type_mismatch(lineno):
+		" error type mismatch en if"
+		print("Error: type mismatch en expresion de condicion en la linea %d." % lineno)
 		exit(0)
 
 	@staticmethod
