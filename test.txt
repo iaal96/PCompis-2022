@@ -5,6 +5,7 @@ function int uno(int c, int d) {
     var char x, y;
     x = "a";
     y = "b";
+    return(8);
 }
 
 function int dos(int a, int b) {

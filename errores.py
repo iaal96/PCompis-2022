@@ -59,3 +59,13 @@ class Error:
 		" error de numero equivocado de argumentos "
 		print("Error: Numero inesperado de argumentos en llamada de modulo '%s' en la linea  %d." % (t, lineno))
 		exit(0)
+
+	@staticmethod
+	def return_on_void_function(t, lineno):
+		print("Error: return en funcion void en la linea %d." % (lineno))
+		exit(0)
+
+	@staticmethod
+	def no_return_on_function(t, lineno):
+		print("Error: no hay return en funcion con tipo return en la linea %d." % (lineno))
+		exit(0) 

@@ -1,12 +1,18 @@
 from cuadruplos import Quadruples
 from memoria import Memory
 from EstructuraDatos import variableTable
+from errores import *
 import re
 cstMemMap = {}
 
 globalMem = Memory()
 localMem = Memory()
 tempMem = Memory()
+
+localMemStack = []
+functionReturnStack = []
+currentFunctionStack = []
+pointerMemStack = []
 
 def getValueFromAddress(address):
     add_type = address // 1000
@@ -28,6 +34,10 @@ def getValueFromAddress(address):
         return tempMem.getFloat(address)
     if add_type == 8:
         return tempMem.getChar(address)
+    if add_type == 12:
+        return pointerMemStack[address % 1000]
+    else:
+        return cstMemMap[address]
 
 def executeQuads():
     for cst in variableTable["constants"]:
@@ -38,48 +48,83 @@ def executeQuads():
                 cstMemMap[variableTable["constants"][cst]["address"]] = float(cst)
         else:
             cstMemMap[variableTable["constants"][cst]["address"]] = cst
-    for quad in Quadruples.quadruples:
-        executeInstruction(quad)
+    index = 0
+    print(cstMemMap)
+    while len(Quadruples.quadruples) > index:    
+        quad = Quadruples.quadruples[index]
+        # quad.print()
+        newIndex = executeInstruction(quad)
+        if quad.operator != "+ADD":
+            if newIndex:
+                index = newIndex
+            else:
+                index += 1                    
+        else:
+            index += 1
+            # if Quadruples.quadruples[index].operator == "UPDATEMAT":
+            #     index += 1
+            #     auxIndex = index
+            #     while Quadruples.quadruples[index].operator != "+":
+            #         index += 1
+            #     Quadruples.quadruples[index].right_operand = newIndex
+            #     index = auxIndex
+            if Quadruples.quadruples[index].operator != "VERIFY":
+                regOperators = ["+", "-", "*", "/", "="]
+                if Quadruples.quadruples[index].operator != "print":
+                    if Quadruples.quadruples[index].operator not in regOperators:
+                        Quadruples.quadruples[index].result = newIndex
+            else:
+                Quadruples.quadruples[index].left_operand = newIndex
 
 def executeInstruction(quad):
     if quad.operator == "=":
-        assign(quad)
+       return assign(quad)
     elif quad.operator == "+":
-        add(quad)
+       return add(quad)
     elif quad.operator == "-":
-        subtract(quad)
+       return subtract(quad)
     elif quad.operator == "*":
-        multiply(quad)
+      return multiply(quad)
     elif quad.operator == "/":
-        divide(quad)
+      return divide(quad)
     elif quad.operator == ">":
-        greaterThan(quad)
+       return greaterThan(quad)
     elif quad.operator == "<":
-        lessThan(quad)
+       return lessThan(quad)
     elif quad.operator == "<>":
-        notEqual(quad)
+       return notEqual(quad)
     elif quad.operator == "==":
-        equals(quad)
+       return equals(quad)
     elif quad.operator == "|":
-        orOp(quad)
+       return orOp(quad)
     elif quad.operator == "&":
-        andOp(quad)
+       return andOp(quad)
     elif quad.operator == "read":
-        read(quad)
+       return read(quad)
     elif quad.operator == "print":
-        printScreen(quad)
+       return printScreen(quad)
     elif quad.operator == "ENDFUNC":
-        endFunc(quad)
+       return endFunc(quad)
     elif quad.operator == "GOTOF":
-        gotof(quad)
+       return gotof(quad)
     elif quad.operator == "GOTO":
-        goto(quad)
+        return goto(quad)
+    elif quad.operator == "GOTOFOR":
+        return gotofor(quad)
     elif quad.operator == "GOSUB":
-        gosub(quad)
+       return gosub(quad)
     elif quad.operator == "ERA":
-        era(quad)
+       return era(quad)
     elif quad.operator == "PARAM":
-        param(quad)
+        return param(quad)
+    elif quad.operator == "RETURN":
+        return rtn(quad)
+    elif quad.operator == "VERIFY":
+        return verify(quad)
+    elif quad.operator == "+ADD":
+        return plusAdd(quad)
+    elif quad.operator == "UPDATEMAT":
+        return updateMatAdd(quad)
 
 def assign(quad):
     add_type = quad.result // 1000

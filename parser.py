@@ -42,6 +42,9 @@ def p_globalTable(t):
 	# Definir tipo y variables como referencia a variableTable["global"]
 	functionDir[currentScope]["type"] = "void"
 	functionDir[currentScope]["vars"] = variableTable[currentScope]
+	tmp_quad = Quadruple("GOTO", "_", "_", "_")
+	Quadruples.push_quad(tmp_quad)
+	Quadruples.push_jump(-1)
     
 def p_error(t):
 	Error.syntax(t.value, t.lexer.lineno)
@@ -62,6 +65,7 @@ def p_mainTable(t):
 	# Definir tipo de funcion y variables como referencia a variableTable["main"]
 	functionDir[currentScope]["type"] = "void"
 	functionDir[currentScope]["vars"] = variableTable[currentScope]
+	Quadruples.update_jump_quad(Quadruples.pop_jump(), Quadruples.next_id)
 
 def p_programFunc(t):
 	'''programFunc : function programFunc
@@ -69,23 +73,32 @@ def p_programFunc(t):
 
 #Assignment: Genera cuadruplo en el varTable correspondiente
 def p_assignment(t):
-	'assignment : ID EQUAL Expression2 SEMICOLON'
+	'assignment : ID dimArray EQUAL Expression2 SEMICOLON'
 	#Si id esta en currentScope, generar cuadruplo y asignar su valor en varTable
 	if t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
-			address = variableTable[currentScope][t[1]]["address"]
-			temp_quad = Quadruple("=", operands.peek(), '_', address)
+			if "rows" in variableTable[currentScope][t[1]]:
+				assign = operands.pop()
+				address = operands.pop()
+				temp_quad = Quadruple("=", assign, "_", address)
+			else:
+				address = variableTable[currentScope][t[1]]["address"]
+				temp_quad = Quadruple("=", operands.pop(), '_', address)
+				operands.pop()
 			Quadruples.push_quad(temp_quad)
-			variableTable[currentScope][t[1]]["value"] = operands.pop()
 		else:
 			Error.type_mismatch(t[1],t.lexer.lineno - 1)
 	#Si id esta en globalScope, generar cuadruplo y asignar su valor en varTable
 	elif t[1] in variableTable["global"]:
 		if types.pop() == variableTable["global"][t[1]]["type"]:
-			address = variableTable["global"][t[1]]["address"]
-			temp_quad = Quadruple("=", operands.peek(), '_', address)
-			Quadruples.push_quad(temp_quad)
-			variableTable["global"][t[1]]["value"] = operands.pop()
+			if "rows" in variableTable["global"][t[1]]:
+				assign = operands.pop()
+				address = operands.pop()
+				temp_quad = Quadruple("=", assign, "_", address)
+			else:
+				address = variableTable["global"][t[1]]["address"]
+				temp_quad = Quadruple("=", operands.pop(), '_', address)
+				operands.pop()
 		else:
 			Error.type_mismatch(t[1],t.lexer.lineno - 1)
 	else:
@@ -191,18 +204,18 @@ def p_updateQuadFor(t):
 	#Actualizar cuadruplo GOTOF cuando termine el for
 	tmp_end = Quadruples.jump_stack.pop()
 	tmp_rtn = Quadruples.jump_stack.pop()
-	tmp_quad = Quadruple("GOTO", "_", "_", tmp_rtn)
+	tmp_quad = Quadruple("GOTOFOR", "_", "_", tmp_rtn)
 	Quadruples.push_quad(tmp_quad)
 	tmp_count = Quadruples.next_id
 	Quadruples.update_jump_quad(tmp_end, tmp_count)
 
 #forAssignment: Agrega iterador a la tabla de constantes y crea una variable iterativa
 def p_forAssignment(t):
-	'forAssignment : ID EQUAL CST_INT'
+	'forAssignment : ID EQUAL CST_INT addTypeInt'
 	address_type = "cInt"
 	cstAddress = 0
 	if t[3] not in variableTable["constants"]:
-		variableTable["constants"][t[3]] = {"value": t[3], "address": addresses[address_type]}
+		variableTable["constants"][t[3]] = {"address": addresses[address_type], "type": "int"}
 		cstAddress = addresses[address_type]
 		addresses[address_type] += 1
 	else:
@@ -212,13 +225,11 @@ def p_forAssignment(t):
 		address = variableTable[currentScope][t[1]]["address"]
 		temp_quad = Quadruple("=", cstAddress, '_', address)
 		Quadruples.push_quad(temp_quad)
-		variableTable[currentScope][t[1]]["value"] = t[3]
 	#Checar si el id existe en global scope y asignar su valor
 	elif t[1] in variableTable["global"]:
 		address = variableTable["global"][t[1]]["address"]
 		temp_quad = Quadruple("=", t[3], '_', address)
 		Quadruples.push_quad(temp_quad)
-		variableTable["global"][t[1]]["value"] = t[3]
 	else:
 		Error.undefined_variable(t[1], t.lexer.lineno)
 
@@ -267,6 +278,9 @@ def p_while(t):
 
 def p_vars(t):
 	'vars : ID addVarsToTable varsArray varsComa'
+	global arrMatId
+	while arrMatId.size() > 0:
+		arrMatId.pop()
 
 #addVarsToTable: Agrega ID actual (y su tipo) a varTable 
 def p_addVarsToTable(t):
@@ -289,30 +303,70 @@ def p_addVarsToTable(t):
 		variableTable[currentScope][t[-1]]["address"] = addresses[address_type]
 		addresses[address_type] += 1
 		global arrMatId
-		arrMatId = t[-1]
+		arrMatId = Stack()
+		arrMatId.push(t[-1])
 
 def p_varsComa(t):
 	'''varsComa : COMA vars
 				| '''
+	global arrMatId
 
 def p_varsMatrix(t):
-	'''varsMatrix : LEFTBRACK CST_INT RIGHTBRACK setCols
+	'''varsMatrix : LEFTBRACK CST_INT addTypeInt RIGHTBRACK setCols
 				  | '''
 
 #varsArray: Declaracion de arreglo
 def p_varsArray(t):
-	'''varsArray : LEFTBRACK CST_INT RIGHTBRACK setRows varsMatrix
+	'''varsArray : LEFTBRACK CST_INT addTypeInt RIGHTBRACK setRows varsMatrix
 				 | '''
+	address_type = "g"
+	const_address = "c"
+	if currentScope != "global":
+		address_type = "l"
+	if currentType == "int":
+		address_type += "Int"
+		const_address += "Int"
+	if currentType == "float":
+		address_type += "Float"
+		const_address += "Float"
+	if currentType == "char":
+		address_type += "Char"
+		const_address += "Char"
+	global arrMatId
+	arrMatAddress = variableTable[currentScope][arrMatId.peek()]["address"]
+	if "rows" in variableTable[currentScope][arrMatId.peek()] and "cols" not in variableTable[currentScope][arrMatId.peek()]:
+		rows = variableTable[currentScope][arrMatId.peek()]["rows"]
+		addresses[address_type] += rows - 1
+		variableTable["constants"][arrMatAddress] = {"address": addresses[const_address], "type": "int"}
+		addresses[const_address] += 1
+	if "cols" in variableTable[currentScope][arrMatId.peek()]:
+		rows = variableTable[currentScope][arrMatId.peek()]["rows"]
+		cols = variableTable[currentScope][arrMatId.peek()]["cols"]
+		addresses[address_type] += rows * cols - 1
+		variableTable["constants"][arrMatAddress] = {"address": addresses[const_address], "type": "int"}
+		addresses[const_address] += 1
 
 def p_setRows(t):
 	'setRows : '
 	global arrMatId
-	variableTable[currentScope][arrMatId]["rows"] = t[-2]
+	if int(t[-3]) > 0:
+		variableTable[currentScope][arrMatId.peek()]["rows"] = int(t[-3])
+		operands.pop()
+	else:
+		print("Error: array '%s' size in line %d must be positive." % (arrMatId.peek(), t.lexer.lineno))
+		exit(0)
+		# Error.non_positive_sized_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_setCols(t):
 	'setCols : '
 	global arrMatId
-	variableTable[currentScope][arrMatId]["cols"] = t[-2]
+	if int(t[-3]) > 0:
+		variableTable[currentScope][arrMatId.peek()]["cols"] = int(t[-3])
+		operands.pop()
+	else:
+		print("Error: array '%s' size in line %d must be positive." % (arrMatId.peek(), t.lexer.lineno))
+		exit(0)
+		# Error.non_positive_sized_array(arrMatId.peek(), t.lexer.lineno)
 
 #function: Crea cuadruplo ENDFUNC y define tabla de variables locales.
 def p_function(t):
@@ -325,9 +379,14 @@ def p_function(t):
 	temp_quad = Quadruple("ENDFUNC", "_", "_", "_")
 	Quadruples.push_quad(temp_quad)
 	# Variables temporales = longitud del cuadruplo de funcion al maximo y resetear func_quads
-	functionDir[currentScope]["varLength"] = Quadruples.function_quads
+	functionDir[currentScope]["varLength"] = len(functionDir[currentScope]["vars"])
 	Quadruples.function_quads = 0
 	currentScope = "global"
+	# Resetear direcciones locales
+	addresses["lInt"] -= addresses["lInt"] % 1000
+	addresses["lFloat"] -= addresses["lFloat"] % 1000
+	addresses["lChar"] -= addresses["lChar"] % 1000
+	types.pop()
 
 def p_param(t):
 	'''param : PDT ID addFuncParams functionParam
@@ -346,6 +405,15 @@ def p_addFuncParams(t):
 	else:
 		# Agregar parametro de la funcion a variableTable de currentScope
 		variableTable[currentScope][t[-1]] = {"type": currentType}
+		if currentType == "int":
+			variableTable[currentScope][t[-1]]["address"] = addresses["lInt"]
+			addresses["lInt"] += 1
+		elif currentType == "float":
+			variableTable[currentScope][t[-1]]["address"] = addresses["lFloat"]
+			addresses["lFloat"] += 1
+		else:
+			variableTable[currentScope][t[-1]]["address"] = addresses["lChar"]
+			addresses["lChar"] += 1
 		if "params" not in functionDir[currentScope]:
 			functionDir[currentScope]["params"] = Queue()
 		# Insertar currentTypes en params Queue
@@ -414,6 +482,16 @@ def p_addFuncToDir(t):
 		global currentType
 		# Agregar funcion a variableTable de currentScope
 		variableTable["global"][t[-1]] = {"type": currentType}
+		if currentType == "int":
+			address = addresses["gInt"]
+			addresses["gInt"] += 1
+		elif currentType == "float":
+			address = addresses["gFloat"]
+			addresses["gFloat"] += 1
+		elif currentType == "char":
+			address = addresses["gChar"]
+			addresses["gChar"] += 1
+		variableTable["global"][t[-1]]["address"] = address
 		# Cambiar scope al nuevo id de la funcion
 		currentScope = t[-1]
 		# Inicializar variableTable y functionDir por nuevo id de la funcion
@@ -422,10 +500,11 @@ def p_addFuncToDir(t):
 		# Definir nuevo tipo de funcion y vars como referencia a variableTable[currentScope]
 		functionDir[currentScope]["type"] = currentType
 		functionDir[currentScope]["vars"] = variableTable[currentScope]
+		functionDir[currentScope]["params"] = Queue()
 
 def p_Expression2(t):
     '''Expression2 : Expression3 evaluateExp2 Expression22 Expression2Nested
-                       | Expression3 opMatrix 
+                       | Expression3 opMatrix
                        | Expression3 evaluateExp2'''
 
 def p_Expression2Nested(t):
@@ -617,7 +696,7 @@ def p_factor(t):
 	'''factor : LEFTPAR addParenthesis Expression2 RIGHTPAR removeParenthesis
 			  | cst_PDT
 			  | module
-			  | ID addOperandId addTypeId'''
+			  | ID dimArray'''
 
 def p_addParenthesis(t):
 	'addParenthesis : '
@@ -632,41 +711,11 @@ def p_removeParenthesis(t):
 	#'addOperand : '
 	#operands.push(t[-1])
 
-#addTypeId: ***
-def p_addTypeId(t):
-	'addTypeId : '
-	#Hacer push a los tipos al stack de tipos
-	if t[-2] in variableTable[currentScope]:
-		types.push(variableTable[currentScope][t[-2]]["type"])
-	elif t[-2] in variableTable["global"]:
-		types.push(variableTable["global"][t[-2]]["type"])
-	else:
-		Error.undefined_variable(t[-1], t.lexer.lineno)
-
-#addOperandId: ***
-def p_addOperandId(t):
-	'addOperandId : '
-	#Agregar el valor del operando de currentcope al stack de operandos
-	if t[-1] in variableTable[currentScope]:
-		if "value" in variableTable[currentScope][t[-1]]:
-			operands.push(variableTable[currentScope][t[-1]]["address"])
-		else:
-			Error.variable_has_no_assigned_value(t[-1], t.lexer.lineno)
-	#Agregar el valor del operando de global scope al stack de operandos
-	elif t[-1] in variableTable["global"]:
-		if "value" in variableTable["global"][t[-1]]:
-			operands.push(variableTable["global"][t[-1]]["address"])
-		else:
-			Error.variable_has_no_assigned_value(t[-1], t.lexer.lineno)
-	else:
-		Error.undefined_variable(t[-1], t.lexer.lineno)
-
-
 def p_read(t):
 	'read : READ LEFTPAR id_list RIGHTPAR SEMICOLON'
 
 def p_id_list(t):
-	'id_list : ID addRead id_listFunction'
+	'id_list : ID dimArray addRead id_listFunction'
 
 def p_id_listFunction(t):
 	'''id_listFunction : COMA id_list
@@ -676,18 +725,16 @@ def p_id_listFunction(t):
 def p_addRead(t):
 	'addRead : '
 	#Genera cuadruplo Read
-	if t[-1] in variableTable[currentScope]:
-		variableTable[currentScope][t[-1]]["value"] = "readValue"
+	if t[-2] in variableTable[currentScope]:
 		address = variableTable[currentScope][t[-1]]["address"]
 		temp_quad = Quadruple("read", '_', '_', address)
 		Quadruples.push_quad(temp_quad)
-	elif t[-1] in variableTable["global"]:
-		variableTable["global"][t[-1]]["value"] = "readValue"
+	elif t[-2] in variableTable["global"]:
 		address = variableTable["global"][t[-1]]["address"]
 		temp_quad = Quadruple("read", '_', '_', address)
 		Quadruples.push_quad(temp_quad)
 	else:
-		Error.undefined_variable(t[-1], t.lexer.lineno)
+		Error.undefined_variable(t[-2], t.lexer.lineno)
 
 def p_print(t):
 	'print : PRINT LEFTPAR printFunction RIGHTPAR SEMICOLON'
@@ -698,15 +745,6 @@ def p_printFunction(t):
 
 def p_printFunction2(t):
 	'printFunction2 : printFunction'
-
-#addPrint: Genera un cuadruplo print y le hace push a la lista de cuadruplos
-def p_addPrint(t):
-	'addPrint : '
-	#Genera cuadruplo print
-	temp_quad = Quadruple("print", '_', '_', operands.pop())
-	Quadruples.push_quad(temp_quad)
-	types.pop()
-
 
 def p_print_param(t):
 	'''print_param : Expression2 addPrint
@@ -726,8 +764,16 @@ def p_addPrintString(t):
 	temp_quad = Quadruple("print", '_', '_', address)
 	Quadruples.push_quad(temp_quad)
 
+def p_addPrint(t):
+	'addPrint : '
+	# Generar cuadruplo print
+	temp_quad = Quadruple("print", '_', '_', operands.pop())
+	Quadruples.push_quad(temp_quad)
+	types.pop()
+
+
 def p_module(t):
-	'module : ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub SEMICOLON'
+	'module : ID checkFunctionExists generateERASize LEFTPAR moduleFunction nullParam RIGHTPAR generateGosub'
 
 #checkFunctionExists: Verifica que la funcion existe en el directorio de Funciones y le hace push al operador del modulo al stack.
 def p_checkFunctionExists(t):
@@ -736,41 +782,67 @@ def p_checkFunctionExists(t):
 		Error.undefined_module(t[-1], t.lexer.lineno)
 	global funcName
 	funcName = t[-1]
+	operators.push("module")
+	types.push(functionDir[funcName]["type"])
 
 #generateERASize: Crea el cuadruplo ERA con el directorio de la funcion que sera llamada.
 def p_generateERASize(t):
 	'generateERASize : '
 	#Generar tamano ERA pendiente...
 	global funcName
-	tmp_quad = Quadruple("ERA", funcName, "_", "_")
+	tmp_quad = Quadruple("ERA", variableTable["global"][funcName]["address"], "_", "_")
 	Quadruples.push_quad(tmp_quad)
-	global k
-	k = 1
+	global paramNum
+	paramNum = 1
 
 #nullParam: Lanza error si falta un parametro en una llamada de funcion
 def p_nullParam(t):
 	'nullParam : '
-	global k
+	global paramNum
 	global funcName
-	if k < len(functionDir[funcName]["params"].values()):
+	if paramNum < len(functionDir[funcName]["params"].values()):
 		Error.unexpected_number_of_arguments(funcName, t.lexer.lineno)
 
 #generateGosub: Crea el cuadruplo Gosub con la direccion de la funcion a llamar **
 def p_generateGosub(t):
 	'generateGosub : '
-	tmp_quad = Quadruple("GOSUB", funcName, "_", functionDir[funcName]["start"])
+	global funcName
+	tmp_quad = Quadruple("GOSUB", variableTable["global"][funcName]["address"], "_", functionDir[funcName]["start"])
 	Quadruples.push_quad(tmp_quad)
+	if functionDir[funcName]["type"] != "void":
+		if functionDir[funcName]["type"] == "int":
+			tmpAddress = addresses["tInt"]
+			addresses["tInt"] += 1
+		if functionDir[funcName]["type"] == "float":
+			tmpAddress = addresses["tFloat"]
+			addresses["tFloat"] += 1
+		if functionDir[funcName]["type"] == "char":
+			tmpAddress = addresses["tChar"]
+			addresses["tChar"] += 1
+		tmp_quad = Quadruple("=", variableTable["global"][funcName]["address"], "_", tmpAddress)
+		Quadruples.push_quad(tmp_quad)
+		operands.push(tmpAddress)
+	operators.pop()
+	types.pop()
+
+
 #generateParam: Crea el cuadruplo PARAM con el opreando que esta siendo leido.
 def p_generateParam(t):
 	'generateParam : '
-	global k
+	global funcName
+	global paramNum
 	arg = operands.pop()
 	argType = types.pop()
 	paramList = functionDir[funcName]["params"].values()
-	if k > len(paramList):
+	counter = paramNum
+	if paramNum > len(paramList):
 		Error.unexpected_number_of_arguments(funcName, t.lexer.lineno)
-	if argType == paramList[-k]:
-		tmp_quad = Quadruple("PARAM", arg, '_', "param%d" % k)
+	if argType == paramList[-paramNum]:
+		for var in functionDir[funcName]["vars"]:
+			if counter == 1:
+				address = functionDir[funcName]["vars"][var]["address"]
+			counter -= 1
+		tmp_quad = Quadruple("PARAM", arg, '_', address)
 		Quadruples.push_quad(tmp_quad)
 	else:
 		Error.type_mismatch_module(funcName, t.lexer.lineno)
@@ -778,32 +850,143 @@ def p_generateParam(t):
 #nextParam: agrega 1 al iterador de param.
 def p_nextParam(t):
 	'nextParam : '
-	global k
-	k += 1
+	global paramNum
+	paramNum += 1
 
-def p_dimensionedID(t):
-	'dimensionedID : ID dimArray'
+def p_dimArray(t):
+	'''dimArray : addOperandId addTypeId LEFTBRACK readIDType Expression2 verifyRows RIGHTBRACK dimMatrix
+				| addOperandId addTypeId '''
+	global arrMatId
+	arrMatId.pop()
 
-def p_dim1(t):
-	'''dimArray : LEFTBRACK CST_INT RIGHTBRACK dimMatrix
-				| '''
+def p_addOperandId(t):
+	'addOperandId : '
+	global arrMatId
+	arrMatId.push(t[-1])
+	# Add currentScope operand value to operand stack
+	if arrMatId.peek() in variableTable[currentScope]:
+		operands.push(variableTable[currentScope][arrMatId.peek()]["address"])
+	# Add global scope operand value to operand stack
+	elif arrMatId.peek() in variableTable["global"]:
+		operands.push(variableTable["global"][arrMatId.peek()]["address"])
+	else:
+		Error.undefined_variable(arrMatId.peek(), t.lexer.lineno)
 
-def p_dim2(t):
-	'''dimMatrix : LEFTBRACK CST_INT RIGHTBRACK
-				 | '''
+def p_addTypeId(t):
+	'addTypeId : '
+	global arrMatId
+	# Push types to types stack
+	if arrMatId.peek() in variableTable[currentScope]:
+		types.push(variableTable[currentScope][arrMatId.peek()]["type"])
+	elif arrMatId.peek() in variableTable["global"]:
+		types.push(variableTable["global"][arrMatId.peek()]["type"])
+	else:
+		Error.undefined_variable(arrMatId.peek(), t.lexer.lineno)
+
+def p_readIDType(t):
+	'readIDType : '
+	global arrMatId
+	operands.pop()
+	operators.push("Mat")
+	#TODO GLOBAL
+	if types.pop() != variableTable[currentScope][arrMatId.peek()]["type"]:
+		Error.type_mismatch(arrMatId.peek(), t.lexer.lineno)
+	if "rows" not in variableTable[currentScope][arrMatId.peek()]:
+		print("Error: variable '%s' in line %d is not subscriptable as an array." % (arrMatId.peek(), t.lexer.lineno))
+		exit(0)
+		# Error.not_subscriptable_array(arrMatId.peek(), t.lexer.lineno)
+
+def p_verifyRows(t):
+	'verifyRows : '
+	global arrMatId
+	baseAdd = variableTable[currentScope][arrMatId.peek()]["address"]
+	upperLim = baseAdd + variableTable[currentScope][arrMatId.peek()]["rows"] - 1
+	tmp_quad = Quadruple("VERIFY", operands.peek(), baseAdd, upperLim)
+	Quadruples.push_quad(tmp_quad)
+
+def p_dimMatrix(t):
+	'''dimMatrix : LEFTBRACK Expression2 verifyCols RIGHTBRACK
+				 | checkMatAsArray '''
+	operators.pop()
+	global arrMatId
+	address_type = "t"
+	if variableTable[currentScope][arrMatId.peek()]["type"] == "int":
+		address_type += "Int"
+	elif variableTable[currentScope][arrMatId.peek()]["type"] == "float":
+		address_type += "Float"
+	else:
+		address_type += "Char"
+	baseAdd = variableTable[currentScope][arrMatId.peek()]["address"]
+	addressCst = variableTable["constants"][baseAdd]["address"]
+	tmp_quad = Quadruple("+ADD", addressCst, operands.pop(), addresses["tPoint"])
+	Quadruples.push_quad(tmp_quad)
+	operands.push(addresses["tPoint"])
+	addresses["tPoint"] += 1
+
+def p_verifyCols(t):
+	'verifyCols : '
+	global arrMatId
+	if "cols" not in variableTable[currentScope][arrMatId.peek()]:
+		print("Error: variable '%s' in line %d is not subscriptable as a matrix." % (arrMatId, t.lexer.lineno))
+		exit(0)
+		# Error.not_subscriptable_matrix(arrMatId.peek(), t.lexer.lineno)
+	#TODO CHECK INDEX VALUE TYPE
+	constant_value = str(variableTable[currentScope][arrMatId.peek()]["rows"])
+	cstIntAddr = variableTable["constants"][constant_value]["address"]
+	tmp_quad = Quadruple("*", operands.pop(), cstIntAddr, addresses["tInt"])
+	Quadruples.push_quad(tmp_quad)
+	operands.push(addresses["tInt"])
+	addresses["tInt"] += 1
+	tmp_quad = Quadruple("+", operands.pop(), operands.pop(), addresses["tInt"])
+	Quadruples.push_quad(tmp_quad)
+	operands.push(addresses["tInt"])
+	addresses["tInt"] += 1
+	#[1, [4  [7, [10,
+	# 2,  5,  8,  11,
+	# 3], 6], 9], 12]
+	# Addre = [0,1,2,3,4,5,6,7,8,9,10,11]
+	# Datos = [1,2,3,4,5,6,7,8,9,10,11,12]
+	#[2][2] => 9 => address = 8 
+	#[1][0] => 8 => address = 7
+	# 1st + 2nd * rows
+	baseAdd = variableTable[currentScope][arrMatId.peek()]["address"]
+	upperLim = baseAdd + variableTable[currentScope][arrMatId.peek()]["rows"] * variableTable[currentScope][arrMatId.peek()]["cols"] - 1
+	tmp_quad = Quadruple("VERIFY", operands.peek(), baseAdd, upperLim)
+	Quadruples.push_quad(tmp_quad)
+
+def p_checkMatAsArray(t):
+	'checkMatAsArray : '
+	global arrMatId
+	if "cols" in variableTable[currentScope][arrMatId.peek()]:
+		print("Error: matrix '%s' accessed as an array in line %d." % (arrMatId.peek(), t.lexer.lineno))
+		exit(0)
+		# Error.matrix_as_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_statement(t):
-	'''statement : return
+	'''statement : return checkVoidType
 				 | if statement
 				 | comment statement
 				 | read statement
 				 | print statement
 				 | assignment statement
-				 | module statement
+				 | module SEMICOLON statement
 				 | for statement
 				 | while statement 
-				 | '''
+				 | checkNonVoidType'''
 
+def p_checkVoidType(t):
+	'checkVoidType : '
+	global currentScope
+	if functionDir[currentScope]["type"] == "void":
+		Error.return_on_void_function(0, t.lexer.lineno)
+	else:
+		tmp_quad = Quadruple("RETURN", "_", "_", operands.pop())
+		Quadruples.push_quad(tmp_quad)
+
+def p_checkNonVoidType(t):
+	'checkNonVoidType : '
+	if functionDir[currentScope]["type"] != "void":
+		Error.no_return_on_function(0, t.lexer.lineno)
 
 def p_moduleFunction(t):
 	'''moduleFunction : Expression2 generateParam nextParam COMA moduleFunction
