@@ -6,7 +6,7 @@ from errores import Error
 from maquinavirtual import executeQuads
 
 tokens = lexer.tokens
-
+arrMatId = Stack()
 
 def p_program(t):
 	'program : PROGRAM ID globalTable SEMICOLON declaration programFunc main'
@@ -822,6 +822,7 @@ def p_generateGosub(t):
 		tmp_quad = Quadruple("=", variableTable["global"][funcName]["address"], "_", tmpAddress)
 		Quadruples.push_quad(tmp_quad)
 		operands.push(tmpAddress)
+		types.push(variableTable["global"][funcName]["type"])
 	operators.pop()
 	types.pop()
 
