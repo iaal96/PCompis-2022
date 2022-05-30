@@ -7,6 +7,7 @@ from maquinavirtual import executeQuads
 
 tokens = lexer.tokens
 arrMatId = Stack()
+arrMatScope = Stack()
 
 def p_program(t):
 	'program : PROGRAM ID globalTable SEMICOLON declaration programFunc main'
@@ -78,6 +79,7 @@ def p_assignment(t):
 	if t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
 			if "rows" in variableTable[currentScope][t[1]]:
+				types.pop()
 				assign = operands.pop()
 				address = operands.pop()
 				temp_quad = Quadruple("=", assign, "_", address)
@@ -92,6 +94,7 @@ def p_assignment(t):
 	elif t[1] in variableTable["global"]:
 		if types.pop() == variableTable["global"][t[1]]["type"]:
 			if "rows" in variableTable["global"][t[1]]:
+				types.pop()
 				assign = operands.pop()
 				address = operands.pop()
 				temp_quad = Quadruple("=", assign, "_", address)
@@ -138,14 +141,11 @@ def p_createJQif(t):
 	result_type = types.pop()
 	#Checar tipo y valor de la expresion evaluada y generar cuadruplo
 	if result_type == "int":
-		# if operands.peek() == 1 or operands.peek() == 0:
 		res = operands.pop()
 		operator = "GOTOF"
 		temp_quad = Quadruple(operator, res, '_', '_')
 		Quadruples.push_quad(temp_quad)
 		Quadruples.push_jump(-1)
-		# else: 
-		# 	Error.condition_type_mismatch(t.lexer.lineno)
 	else: 
 		Error.condition_type_mismatch(t.lexer.lineno)
 
@@ -187,14 +187,11 @@ def p_createQuadFor(t):
 	result_type = types.pop()
 	#Checar tipo y valor de la expresion y agregar cuadruplo al stack
 	if result_type == "int":
-		# if operands.peek() == 1 or operands.peek() == 0:
 		res = operands.pop()
 		operator = "GOTOF"
 		temp_quad = Quadruple(operator, res, '_', '_')
 		Quadruples.push_quad(temp_quad)
 		Quadruples.push_jump(-1)
-		# else: 
-		# 	Error.condition_type_mismatch(t.lexer.lineno)
 	else: 
 		Error.condition_type_mismatch(t.lexer.lineno)
 
@@ -245,7 +242,6 @@ def p_startLoop(t):
 	result_type = types.pop()
 	#Checar tipo y valor de expresion y agregar cuadruplo al stack
 	if result_type == "int":
-		# if operands.peek() == 1 or operands.peek() == 0:
 		res = operands.pop()
 		operator = "GOTOF"
 		# Generate Quadruple and push it to the list
@@ -253,8 +249,6 @@ def p_startLoop(t):
 		Quadruples.push_quad(tmp_quad)
 		# Push into jump stack
 		Quadruples.push_jump(-1)
-		# else:
-		# 	Error.condition_type_mismatch(t.lexer.lineno)
 	else :
 		Error.condition_type_mismatch(t.lexer.lineno)
 
@@ -352,6 +346,7 @@ def p_setRows(t):
 	if int(t[-3]) > 0:
 		variableTable[currentScope][arrMatId.peek()]["rows"] = int(t[-3])
 		operands.pop()
+		types.pop()
 	else:
 		print("Error: array '%s' size in line %d must be positive." % (arrMatId.peek(), t.lexer.lineno))
 		exit(0)
@@ -363,6 +358,7 @@ def p_setCols(t):
 	if int(t[-3]) > 0:
 		variableTable[currentScope][arrMatId.peek()]["cols"] = int(t[-3])
 		operands.pop()
+		types.pop()
 	else:
 		print("Error: array '%s' size in line %d must be positive." % (arrMatId.peek(), t.lexer.lineno))
 		exit(0)
@@ -542,7 +538,7 @@ def p_evaluateExp2(t):
 				addresses[address_type] += 1
 				types.push(resType)
 			else:
-				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
+				Error.operation_type_mismatch(t.lexer.lineno)
 
 def p_Expression22(t):
     '''Expression22 : AND addOperator
@@ -589,7 +585,7 @@ def p_evaluateExp3(t):
 				addresses[address_type] += 1
 				types.push(resType)
 			else:
-				Error.operation_type_mismatch(lOp, rOp, t.lexer.lineno)
+				Error.operation_type_mismatch(t.lexer.lineno)
 
 
 def p_opMatrix(t):
@@ -632,7 +628,7 @@ def p_evaluateTerm(t):
 				addresses[address_type] += 1
 				types.push(resType)
 			else:
-				Error.operation_type_mismatch(lOp, rOp, t.lexer.lineno)
+				Error.operation_type_mismatch(t.lexer.lineno)
 
 
 def p_expFunction(t):
@@ -681,7 +677,7 @@ def p_evaluateFactor(t):
 				addresses[address_type] += 1
 				types.push(resType)
 			else:
-				Error.operation_type_mismatch(lOp, rOp,t.lexer.lineno)
+				Error.operation_type_mismatch(t.lexer.lineno)
 				
 def p_termFunction(t):
 	'''termFunction : MULTIPLY addOperator term
@@ -690,20 +686,23 @@ def p_termFunction(t):
 #addOperator: Push a operador read al stack de operadores
 def p_addOperator(t):
 	'addOperator : '
+	# Agregar operador recibido al stack
 	operators.push(t[-1])
 
 def p_factor(t):
-	'''factor : LEFTPAR addParenthesis Expression2 RIGHTPAR removeParenthesis
+	'''factor : LEFTPAR addPriorityFF Expression2 RIGHTPAR removePriorityFF
 			  | cst_PDT
 			  | module
 			  | ID dimArray'''
 
-def p_addParenthesis(t):
-	'addParenthesis : '
+def p_addPriorityFF(t):
+	'addPriorityFF : '
+	# Agregar "fondo falso" para prioridad
 	operators.push("(")
 
-def p_removeParenthesis(t):
-	'removeParenthesis : '
+def p_removePriorityFF(t):
+	'removePriorityFF : '
+	# Quitar "fondo falso"
 	operators.pop()
 
 
@@ -859,23 +858,25 @@ def p_dimArray(t):
 				| addOperandId addTypeId '''
 	global arrMatId
 	arrMatId.pop()
+	arrMatScope.pop()
 
 def p_addOperandId(t):
 	'addOperandId : '
-	global arrMatId
+	# Agregar ID de variable dimensionada a stack
 	arrMatId.push(t[-1])
-	# Add currentScope operand value to operand stack
+	# Agregar valor del operando de currentScope a stack de operandos
 	if arrMatId.peek() in variableTable[currentScope]:
 		operands.push(variableTable[currentScope][arrMatId.peek()]["address"])
-	# Add global scope operand value to operand stack
+		arrMatScope.push(currentScope)
+	# Agregar valor del operando de globalScope a stack de operandos
 	elif arrMatId.peek() in variableTable["global"]:
 		operands.push(variableTable["global"][arrMatId.peek()]["address"])
+		arrMatScope.push("global")
 	else:
 		Error.undefined_variable(arrMatId.peek(), t.lexer.lineno)
 
 def p_addTypeId(t):
 	'addTypeId : '
-	global arrMatId
 	# Push types to types stack
 	if arrMatId.peek() in variableTable[currentScope]:
 		types.push(variableTable[currentScope][arrMatId.peek()]["type"])
@@ -893,15 +894,19 @@ def p_readIDType(t):
 	if types.pop() != variableTable[currentScope][arrMatId.peek()]["type"]:
 		Error.type_mismatch(arrMatId.peek(), t.lexer.lineno)
 	if "rows" not in variableTable[currentScope][arrMatId.peek()]:
-		print("Error: variable '%s' in line %d is not subscriptable as an array." % (arrMatId.peek(), t.lexer.lineno))
-		exit(0)
-		# Error.not_subscriptable_array(arrMatId.peek(), t.lexer.lineno)
+		if "rows" not in variableTable["global"][arrMatId.peek()]:
+			print("Error: variable '%s' en linea %d no esta subindicada como array." % (arrMatId.peek(), t.lexer.lineno))
+			exit(0)
+			# Error.not_subscriptable_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_verifyRows(t):
 	'verifyRows : '
-	global arrMatId
-	baseAdd = variableTable[currentScope][arrMatId.peek()]["address"]
-	upperLim = baseAdd + variableTable[currentScope][arrMatId.peek()]["rows"] - 1
+	if types.pop() != "int":
+		print("Error: type mismatch in variable '%s' indexation in line %d." % (arrMatId.peek(), t.lexer.lineno))
+		exit(0)
+		# Error.type_mismatch_indexation(arrMatId.peek(), t.lexer.lineno)
+	baseAdd = variableTable[arrMatScope.peek()][arrMatId.peek()]["address"]
+	upperLim = baseAdd + variableTable[arrMatScope.peek()][arrMatId.peek()]["rows"] - 1
 	tmp_quad = Quadruple("VERIFY", operands.peek(), baseAdd, upperLim)
 	Quadruples.push_quad(tmp_quad)
 
@@ -909,30 +914,34 @@ def p_dimMatrix(t):
 	'''dimMatrix : LEFTBRACK Expression2 verifyCols RIGHTBRACK
 				 | checkMatAsArray '''
 	operators.pop()
-	global arrMatId
 	address_type = "t"
-	if variableTable[currentScope][arrMatId.peek()]["type"] == "int":
+	if variableTable[arrMatScope.peek()][arrMatId.peek()]["type"] == "int":
 		address_type += "Int"
-	elif variableTable[currentScope][arrMatId.peek()]["type"] == "float":
+	elif variableTable[arrMatScope.peek()][arrMatId.peek()]["type"] == "float":
 		address_type += "Float"
 	else:
 		address_type += "Char"
-	baseAdd = variableTable[currentScope][arrMatId.peek()]["address"]
+	baseAdd = variableTable[arrMatScope.peek()][arrMatId.peek()]["address"]
 	addressCst = variableTable["constants"][baseAdd]["address"]
 	tmp_quad = Quadruple("+", addressCst, operands.pop(), addresses["tPoint"])
 	Quadruples.push_quad(tmp_quad)
 	operands.push(addresses["tPoint"])
+	types.push(variableTable[arrMatScope.peek()][arrMatId.peek()]["type"])
 	addresses["tPoint"] += 1
 
 def p_verifyCols(t):
 	'verifyCols : '
-	global arrMatId
-	if "cols" not in variableTable[currentScope][arrMatId.peek()]:
+	if "cols" not in variableTable[arrMatScope.peek()][arrMatId.peek()]:
 		print("Error: variable '%s' in line %d is not subscriptable as a matrix." % (arrMatId, t.lexer.lineno))
 		exit(0)
 		# Error.not_subscriptable_matrix(arrMatId.peek(), t.lexer.lineno)
-	#TODO CHECK INDEX VALUE TYPE
-	constant_value = str(variableTable[currentScope][arrMatId.peek()]["rows"])
+	#PENDIENTE ARRAYS GLOBAL/LOCAL MIX
+	if types.pop() != "int":
+		print("Error: type mismatch in variable '%s' indexation in line %d." % (arrMatId.peek(), t.lexer.lineno))
+		exit(0)
+		# Error.type_mismatch_indexation(arrMatId.peek(), t.lexer.lineno)
+	# Formula de calcul de direccion al estilo C
+	constant_value = str(variableTable[arrMatScope.peek()][arrMatId.peek()]["rows"])
 	cstIntAddr = variableTable["constants"][constant_value]["address"]
 	tmp_quad = Quadruple("*", operands.pop(), cstIntAddr, addresses["tInt"])
 	Quadruples.push_quad(tmp_quad)
