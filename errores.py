@@ -19,9 +19,9 @@ class Error:
 		exit(0)
 
 	@staticmethod
-	def operation_type_mismatch(lOp, rOp, lineno):
+	def operation_type_mismatch(lineno):
 		"error de operation type mismatch "
-		print("Error: type mismatch entre '%s' y '%s' en la linea %d" % (lOp, rOp, lineno))
+		print("Error: type mismatch en operacion en la linea %d." % (lineno))
 		exit(0)
 
 	@staticmethod
