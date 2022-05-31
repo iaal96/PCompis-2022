@@ -56,6 +56,7 @@ semanticCube = {}
 operators = Stack()
 operands = Stack()
 types = Stack()
+arrMatOperands = Stack()
 addresses = {
     "gInt": 0,
     "gFloat": 1000,
