@@ -1,11 +1,11 @@
 program myprogram;
 
-function int test1(int c, int d) {
+function int uno(int c, int d) {
     var char x, y;
     return(999);
 }
 
-function int test2(int a, int b) {
+function int dos(int a, int b) {
     var char x, y;
     return(1000);
 }
@@ -16,9 +16,9 @@ main() {
     z[1+2] = 2;
     z[0] = 1;
     z[1] = 3;
-    j[2][1] = test2(2,2);
+    j[2][1] = dos(2,2);
     print(j[2][z[0]]);
-    print(test2(1,2) + test1(1,2) * z[1] * j[2][z[0]]);
+    print(dos(1,2) + uno(1,2) * z[1] * j[2][z[0]]);
     print(j[2][z[0]] + j[z[3]][z[0]] * z[1] / 2);
     print("END OF MAIN");
 }

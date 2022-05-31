@@ -77,12 +77,22 @@ def p_programFunc(t):
 def p_assignment(t):
 	'assignment : ID dimArray EQUAL Expression2 SEMICOLON'
 	#Si id esta en currentScope, generar cuadruplo y asignar su valor en varTable
-	if arrMatOperands.size() > 0:
+	if arrMatOperands.size() > 1:
 		types.pop()
+		operands.pop()
+		operands.pop()
 		assign = arrMatOperands.pop()
 		address = arrMatOperands.pop()
+		if assign["rows"] != address["rows"] or assign["cols"] != address["cols"]:
+			print("Error: operation between variables with dimensions that don't match in line %d." % (t.lexer.lineno - 1))
+			exit(0)
+			# Error class call
 		temp_quad = Quadruple("ARR=", assign, "_", address)
 		Quadruples.push_quad(temp_quad)
+	elif arrMatOperands.size() == 1:
+		print("Error: invalid assignment to array variable in line %d." % (t.lexer.lineno - 1))
+		exit(0)
+		# Error class call
 	elif t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
 			if "rows" in variableTable[currentScope][t[1]]:
@@ -240,7 +250,7 @@ def p_forAssignment(t):
 		else:
 			Error.undefined_variable(t[1], t.lexer.lineno)
 	else:
-		print("Error: invalid assignment to non-atomic variable in line %d." % (t.lexer.lineno))
+		print("Error: asignacion invalida a variable de array en la linea %d." % (t.lexer.lineno))
 		exit(0)
 		# Actualizar con clase error
 
@@ -286,9 +296,6 @@ def p_while(t):
 
 def p_vars(t):
 	'vars : ID addVarsToTable varsArray varsComa'
-	global arrMatId
-	while arrMatId.size() > 0:
-		arrMatId.pop()
 
 #addVarsToTable: Agrega ID actual (y su tipo) a varTable 
 def p_addVarsToTable(t):
@@ -317,7 +324,7 @@ def p_addVarsToTable(t):
 def p_varsComa(t):
 	'''varsComa : COMA vars
 				| '''
-	global arrMatId
+
 
 def p_varsMatrix(t):
 	'''varsMatrix : LEFTBRACK CST_INT addTypeInt RIGHTBRACK setCols
@@ -353,6 +360,7 @@ def p_varsArray(t):
 		addresses[address_type] += rows * cols - 1
 		variableTable["constants"][arrMatAddress] = {"address": addresses[const_address], "type": "int"}
 		addresses[const_address] += 1
+	arrMatId.pop()
 
 def p_setRows(t):
 	'setRows : '
@@ -443,7 +451,6 @@ def p_cst_PDT(t):
 	'''cst_PDT : CST_INT addTypeInt
 				| CST_FLOAT addTypeFloat
 				| CST_CHAR addTypeChar'''
-	t[0] = t[1]
 
 #addTypeInt: Guardar int en tabla de constantes y hacer push al operando al stack de operandos.
 def p_addTypeInt(t):
@@ -514,12 +521,83 @@ def p_addFuncToDir(t):
 
 def p_Expression2(t):
     '''Expression2 : Expression3 evaluateExp2 Expression22 Expression2Nested
-                       | Expression3 opMatrix
+                       | Expression3 opMatrix evaluateOpMatrix
                        | Expression3 evaluateExp2'''
 
 def p_Expression2Nested(t):
     '''Expression2Nested : Expression3 evaluateExp2 Expression22 Expression2Nested
                              | Expression3 evaluateExp2'''
+
+def p_evaluateOpMatrix(t):
+	'evaluateOpMatrix : '
+	if operators.size() != 0:
+		if operators.peek() == "!" or operators.peek() == "?" or operators.peek() == "$":
+			# Pop operands
+			operands.pop()
+			# Pop operator
+			oper = operators.pop()
+			# Pop types
+			operandType = types.pop()
+			# Check semanticCube with types and operator
+			resType = semanticCube[(operandType, operandType, oper)]
+			oper = "ARR" + oper
+			if oper == "ARR!" or oper == "ARR?":
+				if arrMatOperands.size() > 1:
+					arrOperand = arrMatOperands.pop()
+					print(arrOperand)
+					# $ return type => float
+					# ! return type => mat with inverted rows and cols
+					# ? return type => mat with same row and cols
+					if "cols" not in arrOperand:
+						arrOperand["cols"] = 1
+					if resType != "error":
+						address_type = "t"
+						if resType == "int":
+							address_type += "Int"
+						elif resType == "float":
+							address_type += "Float"
+						else:
+							address_type += "Char"
+						temp_quad = Quadruple(oper, arrOperand, "_", addresses[address_type])
+						Quadruples.push_quad(temp_quad)
+						operands.push(addresses[address_type])
+						if oper == "ARR?":
+							arrMatOperands.push({
+								"address": addresses[address_type],
+								"rows": arrOperand["rows"],
+								"cols": arrOperand["cols"]
+							})
+							addresses[address_type] += arrOperand["rows"] * arrOperand["cols"]
+						elif oper == "ARR!":
+							arrMatOperands.push({
+								"address": addresses[address_type],
+								"rows": arrOperand["cols"],
+								"cols": arrOperand["rows"]
+							})
+							addresses[address_type] += arrOperand["rows"] * arrOperand["cols"]
+						types.push(resType)
+					else:
+						print("Error: invalid operation in line %d." % (t.lexer.lineno))
+						exit(0)
+						# Error class call
+				else:
+					print("Error: invalid operation in line %d." % (t.lexer.lineno))
+					exit(0)
+					# Error class call
+			else:
+				arrOperand = arrMatOperands.pop()
+				if resType != "error":
+					address_type = "t"
+					if resType == "int":
+						address_type += "Int"
+					elif resType == "float":
+						address_type += "Float"
+					else:
+						address_type += "Char"
+					temp_quad = Quadruple(oper, arrOperand, "_", addresses[address_type])
+					Quadruples.push_quad(temp_quad)
+					operands.push(addresses[address_type])
+					types.push(resType)
 
 #evaluateExp2: Evalua operador y operandos de expresiones booleanas del tipo AND Y or
 def p_evaluateExp2(t):
@@ -537,6 +615,9 @@ def p_evaluateExp2(t):
 			lType = types.pop()
 			#Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
+			if arrMatOperands.size() > 0:
+				print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
+				exit(0)
 			#Checar tipo y valor
 			if resType != "error":
 				address_type = "t"
@@ -584,6 +665,9 @@ def p_evaluateExp3(t):
 			lType = types.pop()
 			# Checar cubo semantico para tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
+			if arrMatOperands.size() > 0:
+				print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
+				exit(0)
 			# Checar tipo del resultado y evaluar expresion
 			if resType != "error":
 				address_type = "t"
@@ -631,38 +715,11 @@ def p_evaluateTerm(t):
 			if arrMatOperands.size() > 1:
 				rId = arrMatOperands.pop()
 				lId = arrMatOperands.pop()
-				# rDimRow = 0
-				# rDimCol = 0
-				# lDimRow = 0
-				# lDimCol = 0
-				# if rOp >= 0 and rOp < 3000:
-				# 	rOpAdd = variableTable["global"][rId]["address"]
-				# 	if "rows" in variableTable["global"][rId]:
-				# 		rDimRow = variableTable["global"][rId]["rows"]
-				# 	if "cols" in variableTable["global"][rId]:
-				# 		rDimCol = variableTable["global"][rId]["cols"]
-				# elif rOp >= 3000 and rOp < 6000:
-				# 	rOpAdd = variableTable[currentScope][rId]["address"]
-				# 	if "rows" in variableTable[currentScope][rId]:
-				# 		rDimRow = variableTable[currentScope][rId]["rows"]
-				# 	if "cols" in variableTable[currentScope][rId]:
-				# 		rDimCol = variableTable[currentScope][rId]["cols"]
-				# if lOp >= 0 and lOp < 3000:
-				# 	lOpAdd = variableTable["global"][lId]["address"]
-				# 	if "rows" in variableTable["global"][lId]:
-				# 		lDimRow = variableTable["global"][lId]["rows"]
-				# 	if "cols" in variableTable["global"][lId]:
-				# 		lDimCol = variableTable["global"][lId]["cols"]
-				# elif lOp >= 3000 and lOp < 6000:
-				# 	lOpAdd = variableTable[currentScope][lId]["address"]
-				# 	if "rows" in variableTable[currentScope][lId]:
-				# 		lDimRow = variableTable[currentScope][lId]["rows"]
-				# 	if "cols" in variableTable[currentScope][lId]:
-				# 		lDimCol = variableTable[currentScope][lId]["cols"]
 				# Validate equal dimensions
-				if "cols" not in lId and "cols" not in rId:
-					lId["cols"] = 0
-					rId["cols"] = 0
+				if "cols" not in lId:
+					lId["cols"] = 1
+				if "cols" not in rId:
+					rId["cols"] = 1
 				if lId["rows"] == rId["rows"] and lId["cols"] == rId["cols"]:
 					if oper == "+":
 						oper = "ARR+"
@@ -704,7 +761,9 @@ def p_evaluateTerm(t):
 						"rows": lOp["rows"],
 						"cols": lOp["cols"]
 					})
-				addresses[address_type] += 1
+					addresses[address_type] += lOp["rows"] * lOp["cols"]
+				else:
+					addresses[address_type] += 1
 				types.push(resType)
 			else:
 				Error.operation_type_mismatch(t.lexer.lineno)
@@ -741,6 +800,40 @@ def p_evaluateFactor(t):
 			lType = types.pop()
 			# Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
+			# Check and validate for array or matrix operands and sizes
+			if arrMatOperands.size() > 1:
+				rId = arrMatOperands.pop()
+				lId = arrMatOperands.pop()
+				# Validate equal dimensions
+				if "cols" not in lId:
+					lId["cols"] = 1
+				if "cols" not in rId:
+					rId["cols"] = 1
+				if lId["cols"] == rId["rows"]:
+					if oper == "*":
+						oper = "ARR*"
+					else:
+						print("Error: operadores de array invalidos en la linea %d." % (t.lexer.lineno))
+						exit(0)
+						# Error class call
+					lOp = {
+						"address": lId["address"],
+						"rows": lId["rows"],
+						"cols": lId["cols"]
+					}
+					rOp = {
+						"address": rId["address"],
+						"rows": rId["rows"],
+						"cols": rId["cols"]
+					}
+				else:
+					print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
+					exit(0)
+					# Error class call
+			elif arrMatOperands.size() == 1:
+				print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
+				exit(0)
+				# Error class call
 			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				address_type = "t"
@@ -753,7 +846,13 @@ def p_evaluateFactor(t):
 				temp_quad = Quadruple(oper, lOp, rOp, addresses[address_type])
 				Quadruples.push_quad(temp_quad)
 				operands.push(addresses[address_type])
-				addresses[address_type] += 1
+				if oper == "ARR*":
+					arrMatOperands.push({
+						"address": addresses[address_type],
+						"rows": lOp["rows"],
+						"cols": rOp["cols"]
+					})
+					addresses[address_type] += lOp["rows"] * rOp["cols"]
 				types.push(resType)
 			else:
 				Error.operation_type_mismatch(t.lexer.lineno)
