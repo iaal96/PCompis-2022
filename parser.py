@@ -83,15 +83,15 @@ def p_assignment(t):
 		operands.pop()
 		assign = arrMatOperands.pop()
 		address = arrMatOperands.pop()
+		if assign["type"] != address["type"]:
+			Error.type_mismatch_array_assignment(t.lexer.lineno)
 		if assign["rows"] != address["rows"] or assign["cols"] != address["cols"]:
-			print("Error: operation between variables with dimensions that don't match in line %d." % (t.lexer.lineno - 1))
-			exit(0)
+			Error.dimensions_do_not_match(t.lexer.lineno-1)
 			# Error class call
 		temp_quad = Quadruple("ARR=", assign, "_", address)
 		Quadruples.push_quad(temp_quad)
 	elif arrMatOperands.size() == 1:
-		print("Error: invalid assignment to array variable in line %d." % (t.lexer.lineno - 1))
-		exit(0)
+		Error.invalid_assignment_to_array_variable(t.lexer.lineno-1)
 		# Error class call
 	elif t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
@@ -250,8 +250,7 @@ def p_forAssignment(t):
 		else:
 			Error.undefined_variable(t[1], t.lexer.lineno)
 	else:
-		print("Error: asignacion invalida a variable de array en la linea %d." % (t.lexer.lineno))
-		exit(0)
+		Error.invalid_assignment_to_array_variable(t.lexer.lineno)
 		# Actualizar con clase error
 
 
@@ -370,8 +369,7 @@ def p_setRows(t):
 		operands.pop()
 		types.pop()
 	else:
-		print("Error: array '%s' size in line %d must be positive." % (arrMatId.peek(), t.lexer.lineno))
-		exit(0)
+		Error.array_size_must_be_positive(arrMatId.peek(), t.lexer.lineno)
 		# Error.non_positive_sized_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_setCols(t):
@@ -382,8 +380,7 @@ def p_setCols(t):
 		operands.pop()
 		types.pop()
 	else:
-		print("Error: array '%s' size in line %d must be positive." % (arrMatId.peek(), t.lexer.lineno))
-		exit(0)
+		Error.array_size_must_be_positive(arrMatId.peek(), t.lexer.lineno)
 		# Error.non_positive_sized_array(arrMatId.peek(), t.lexer.lineno)
 
 #function: Crea cuadruplo ENDFUNC y define tabla de variables locales.
@@ -544,12 +541,46 @@ def p_evaluateOpMatrix(t):
 			if oper == "ARR!" or oper == "ARR?":
 				if arrMatOperands.size() > 1:
 					arrOperand = arrMatOperands.pop()
-					print(arrOperand)
-					# $ return type => float
-					# ! return type => mat with inverted rows and cols
-					# ? return type => mat with same row and cols
 					if "cols" not in arrOperand:
 						arrOperand["cols"] = 1
+					if (arrOperand["rows"] == arrOperand["cols"] and oper == "ARR?") or oper == "ARR!":
+						if resType != "error":
+							address_type = "t"
+							if resType == "int":
+								address_type += "Int"
+							elif resType == "float":
+								address_type += "Float"
+							else:
+								address_type += "Char"
+							temp_quad = Quadruple(oper, arrOperand, "_", addresses[address_type])
+							Quadruples.push_quad(temp_quad)
+							operands.push(addresses[address_type])
+							if oper == "ARR?":
+								arrMatOperands.push({
+									"address": addresses[address_type],
+									"rows": arrOperand["rows"],
+									"cols": arrOperand["cols"],
+									"type": "float"
+								})
+								addresses[address_type] += arrOperand["rows"] * arrOperand["cols"]
+							elif oper == "ARR!":
+								arrMatOperands.push({
+									"address": addresses[address_type],
+									"rows": arrOperand["cols"],
+									"cols": arrOperand["rows"],
+									"type": resType
+								})
+								addresses[address_type] += arrOperand["rows"] * arrOperand["cols"]
+							types.push(resType)
+						else:
+							Error.invalid_operation_in_line(t.lexer.lineno)
+					else:
+						Error.invalid_inverse_calculation(t.lexer.lineno)
+				else:
+					Error.invalid_operation_in_line(t.lexer.lineno)
+			else:
+				arrOperand = arrMatOperands.pop()
+				if arrOperand["rows"] == arrOperand["cols"]:
 					if resType != "error":
 						address_type = "t"
 						if resType == "int":
@@ -561,43 +592,12 @@ def p_evaluateOpMatrix(t):
 						temp_quad = Quadruple(oper, arrOperand, "_", addresses[address_type])
 						Quadruples.push_quad(temp_quad)
 						operands.push(addresses[address_type])
-						if oper == "ARR?":
-							arrMatOperands.push({
-								"address": addresses[address_type],
-								"rows": arrOperand["rows"],
-								"cols": arrOperand["cols"]
-							})
-							addresses[address_type] += arrOperand["rows"] * arrOperand["cols"]
-						elif oper == "ARR!":
-							arrMatOperands.push({
-								"address": addresses[address_type],
-								"rows": arrOperand["cols"],
-								"cols": arrOperand["rows"]
-							})
-							addresses[address_type] += arrOperand["rows"] * arrOperand["cols"]
+						addresses[address_type] += 1
 						types.push(resType)
 					else:
-						print("Error: invalid operation in line %d." % (t.lexer.lineno))
-						exit(0)
-						# Error class call
+						Error.invalid_operation_in_line(t.lexer.lineno)
 				else:
-					print("Error: invalid operation in line %d." % (t.lexer.lineno))
-					exit(0)
-					# Error class call
-			else:
-				arrOperand = arrMatOperands.pop()
-				if resType != "error":
-					address_type = "t"
-					if resType == "int":
-						address_type += "Int"
-					elif resType == "float":
-						address_type += "Float"
-					else:
-						address_type += "Char"
-					temp_quad = Quadruple(oper, arrOperand, "_", addresses[address_type])
-					Quadruples.push_quad(temp_quad)
-					operands.push(addresses[address_type])
-					types.push(resType)
+					Error.invalid_determinant_calculation(t.lexer.lineno)
 
 #evaluateExp2: Evalua operador y operandos de expresiones booleanas del tipo AND Y or
 def p_evaluateExp2(t):
@@ -616,8 +616,7 @@ def p_evaluateExp2(t):
 			#Checar cubo semantico con tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
 			if arrMatOperands.size() > 0:
-				print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
-				exit(0)
+				Error.invalid_operation_in_line(t.lexer.lineno)
 			#Checar tipo y valor
 			if resType != "error":
 				address_type = "t"
@@ -666,8 +665,7 @@ def p_evaluateExp3(t):
 			# Checar cubo semantico para tipos y operador
 			resType = semanticCube[(lType, rType, oper)]
 			if arrMatOperands.size() > 0:
-				print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
-				exit(0)
+				Error.invalid_operation_in_line(t.lexer.lineno)
 			# Checar tipo del resultado y evaluar expresion
 			if resType != "error":
 				address_type = "t"
@@ -736,12 +734,10 @@ def p_evaluateTerm(t):
 						"cols": rId["cols"]
 					}
 				else:
-					print("Error: operation between variables with dimensions that don't match in line %d." % (t.lexer.lineno))
-					exit(0)
+					Error.dimensions_do_not_match(t.lexer.lineno)
 					# Error class call
 			elif arrMatOperands.size() == 1:
-				print("Error: invalid operation in line %d." % (t.lexer.lineno))
-				exit(0)
+				Error.invalid_operation_in_line(t.lexer.lineno)
 				# Error class call
 			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
@@ -813,8 +809,7 @@ def p_evaluateFactor(t):
 					if oper == "*":
 						oper = "ARR*"
 					else:
-						print("Error: operadores de array invalidos en la linea %d." % (t.lexer.lineno))
-						exit(0)
+						Error.invalid_operator_on_arrays(t.lexer.lineno)
 						# Error class call
 					lOp = {
 						"address": lId["address"],
@@ -827,13 +822,9 @@ def p_evaluateFactor(t):
 						"cols": rId["cols"]
 					}
 				else:
-					print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
-					exit(0)
-					# Error class call
+					Error.invalid_operation_in_line(t.lexer.lineno)
 			elif arrMatOperands.size() == 1:
-				print("Error: operacion invalida en la linea %d." % (t.lexer.lineno))
-				exit(0)
-				# Error class call
+				Error.invalid_operation_in_line(t.lexer.lineno)
 			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				address_type = "t"
@@ -945,8 +936,7 @@ def p_addPrint(t):
 	'addPrint : '
 	# Generar cuadruplo print
 	if arrMatOperands.size() > 0:
-		print("Error: print invalido en variable de array en la linea  %d." % (t.lexer.lineno))
-		exit(0)
+		Error.invalid_print_on_array_variable(t.lexer.lineno)
 	temp_quad = Quadruple("print", '_', '_', operands.pop())
 	Quadruples.push_quad(temp_quad)
 	types.pop()
@@ -1013,8 +1003,7 @@ def p_generateParam(t):
 	global funcName
 	global paramNum
 	if arrMatOperands.size() > 0:
-		print("Error: array parameter in module call in in line %d." % (t.lexer.lineno))
-		exit(0)
+		Error.array_parameter_in_module_call(t.lexer.lineno)
 	arg = operands.pop()
 	argType = types.pop()
 	paramList = functionDir[funcName]["params"].values()
@@ -1059,7 +1048,15 @@ def p_addOperandId(t):
 	else:
 		Error.undefined_variable(arrMatId.peek(), t.lexer.lineno)
 	if "rows" in variableTable[arrMatScope.peek()][t[-1]]:
-		arrMatOperands.push(variableTable[arrMatScope.peek()][t[-1]])
+		if "cols" not in variableTable[arrMatScope.peek()][t[-1]]:
+			variable = variableTable[arrMatScope.peek()][t[-1]]
+			arrMatOperands.push({
+				"address": variable["address"],
+				"rows": variable["rows"],
+				"cols": 1
+			})
+		else:
+			arrMatOperands.push(variableTable[arrMatScope.peek()][t[-1]])
 
 def p_addTypeId(t):
 	'addTypeId : '
@@ -1082,16 +1079,13 @@ def p_readIDType(t):
 		Error.type_mismatch(arrMatId.peek(), t.lexer.lineno)
 	if "rows" not in variableTable[currentScope][arrMatId.peek()]:
 		if "rows" not in variableTable["global"][arrMatId.peek()]:
-			print("Error: variable '%s' en linea %d no esta subindicada como array." % (arrMatId.peek(), t.lexer.lineno))
-			exit(0)
+			Error.variable_not_subscriptable_as_array(arrMatId.peek(), t.lexer.lineno)
 			# Error.not_subscriptable_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_verifyRows(t):
 	'verifyRows : '
 	if types.pop() != "int":
-		print("Error: type mismatch in variable '%s' indexation in line %d." % (arrMatId.peek(), t.lexer.lineno))
-		exit(0)
-		# Error.type_mismatch_indexation(arrMatId.peek(), t.lexer.lineno)
+		Error.type_mismatch_in_index(arrMatId.peek(), t.lexer.lineno)
 	baseAdd = variableTable[arrMatScope.peek()][arrMatId.peek()]["address"]
 	upperLim = baseAdd + variableTable[arrMatScope.peek()][arrMatId.peek()]["rows"] - 1
 	tmp_quad = Quadruple("VERIFY", operands.peek(), baseAdd, upperLim)
@@ -1119,14 +1113,10 @@ def p_dimMatrix(t):
 def p_verifyCols(t):
 	'verifyCols : '
 	if "cols" not in variableTable[arrMatScope.peek()][arrMatId.peek()]:
-		print("Error: variable '%s' in line %d is not subscriptable as a matrix." % (arrMatId, t.lexer.lineno))
-		exit(0)
-		# Error.not_subscriptable_matrix(arrMatId.peek(), t.lexer.lineno)
+		Error.variable_not_subscriptable_as_matrix(arrMatId, t.lexer.lineno)
 	#PENDIENTE ARRAYS GLOBAL/LOCAL MIX
 	if types.pop() != "int":
-		print("Error: type mismatch in variable '%s' indexation in line %d." % (arrMatId.peek(), t.lexer.lineno))
-		exit(0)
-		# Error.type_mismatch_indexation(arrMatId.peek(), t.lexer.lineno)
+		Error.type_mismatch_in_index(arrMatId.peek(),t.lexer.lineno)
 	# Formula de calcul de direccion al estilo C
 	constant_value = str(variableTable[arrMatScope.peek()][arrMatId.peek()]["rows"])
 	cstIntAddr = variableTable["constants"][constant_value]["address"]
@@ -1155,9 +1145,7 @@ def p_checkMatAsArray(t):
 	'checkMatAsArray : '
 	global arrMatId
 	if "cols" in variableTable[currentScope][arrMatId.peek()]:
-		print("Error: matrix '%s' accessed as an array in line %d." % (arrMatId.peek(), t.lexer.lineno))
-		exit(0)
-		# Error.matrix_as_array(arrMatId.peek(), t.lexer.lineno)
+		Error.matrix_accessed_as_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_statement(t):
 	'''statement : return checkVoidType
@@ -1190,7 +1178,12 @@ def p_moduleFunction(t):
 					  | Expression2 generateParam
 					  | '''
 
-f = open('test.txt', 'r')
+import sys
+
+if len(sys.argv) > 1:
+	f = open(sys.argv[1], "r")
+else:
+	f = open("test.txt", "r")
 program = f.read()
 
 parser = yacc.yacc()

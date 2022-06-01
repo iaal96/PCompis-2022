@@ -69,3 +69,82 @@ class Error:
 	def no_return_on_function(t, lineno):
 		print("Error: no hay return en funcion con tipo return en la linea %d." % (lineno))
 		exit(0) 
+
+	@staticmethod
+	def matrix_accessed_as_array(t, lineno):
+		print("Error: matriz '%s' accesada como arreglo en linea %d." % (t, t.lexer.lineno))
+		exit(0)
+
+	@staticmethod
+	def type_mismatch_in_index(t, lineno):
+		print("Error: type mismatch en indexacion de variable '%s' en la linea %d." % (t, lineno))
+		exit(0)
+
+	@staticmethod
+	def variable_not_subscriptable_as_matrix(t, lineno):
+		print("Error: variable '%s' en la linea %d no es subindice de matriz" % (t, lineno))
+		exit(0)
+
+	@staticmethod
+	def variable_not_subscriptable_as_array(id, lineno):
+		print("Error: variable '%s' en la linea %d no es subindice de arreglo." % (id, lineno))
+		exit(0)
+
+	@staticmethod
+	def array_parameter_in_module_call(lineno):
+		print("Error: parametro de arreglo en llamada de modulo en la linea %d." % (lineno))
+		exit(0)
+
+
+	@staticmethod
+	def invalid_print_on_array_variable(lineno):
+		print("Error: print invalido en variable de arreglo en la linea %d." % (lineno))
+		exit(0)
+
+	@staticmethod	
+	def invalid_operator_on_arrays(lineno):
+		print("Error: operador invalido en arreglos en la linea %d." % (lineno))
+		exit(0)
+
+	@staticmethod
+	def invalid_operation_in_line(lineno):
+		print("Error: operacion invalida en la linea %d." % (lineno))
+		exit(0)
+
+	@staticmethod
+	def dimensions_do_not_match(lineno):
+		print("Error: operacion entre variables con dimensiones que no corresponden en la linea %d." % (lineno))
+		exit(0)
+
+	@staticmethod
+	def invalid_assignment_to_array_variable(lineno):
+		print("Error: asignacion a variable de arreglo invalida en la linea %d." % (lineno))
+		exit(0)
+	
+	@staticmethod
+	def invalid_determinant_calculation(lineno):
+		print("Error: dimensiones de arreglo para el calculo de determinante invalidos en la linea %d." % (lineno))
+
+	@staticmethod
+	def array_size_must_be_positive(t, lineno):
+		print("Error: tamaño del arreglo '%s' en la linea  %d debe ser positivo." % (t, lineno))
+		exit(0)
+	
+	def index_out_of_bounds():
+		print("Error: index out of bounds.")
+		exit(0)
+
+	@staticmethod
+	def division_by_zero():
+		print("Error: division entre cero.")
+		exit(0)
+
+	@staticmethod
+	def invalid_inverse_calculation(lineno):
+		print("Error: dimensiones de arreglo invalidas para el calculo de inversa en la linea %d." % (lineno))
+		exit(0)
+
+	@staticmethod
+	def type_mismatch_array_assignment(lineno):
+		print("Error: type mismatch en asignacion de arreglo en la linea %d." % (lineno))
+		exit(0)
