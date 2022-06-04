@@ -82,12 +82,12 @@ class Error:
 
 	@staticmethod
 	def variable_not_subscriptable_as_matrix(t, lineno):
-		print("Error: variable '%s' en la linea %d no es subindice de matriz" % (t, lineno))
+		print("Error: variable '%s' en la linea %d no es parte de una matriz" % (t, lineno))
 		exit(0)
 
 	@staticmethod
 	def variable_not_subscriptable_as_array(id, lineno):
-		print("Error: variable '%s' en la linea %d no es subindice de arreglo." % (id, lineno))
+		print("Error: variable '%s' en la linea %d no es parte de un arreglo." % (id, lineno))
 		exit(0)
 
 	@staticmethod
