@@ -148,3 +148,13 @@ class Error:
 	def type_mismatch_array_assignment(lineno):
 		print("Error: type mismatch en asignacion de arreglo en la linea %d." % (lineno))
 		exit(0)
+
+	@staticmethod
+	def inverse_determinant_zero():
+		print("Error: deteminante de la inversa es cero.")
+		exit(0)
+
+	@staticmethod
+	def type_mismatch_on_return(lineno):
+		print("Error: type mismatch en return en la linea %d." % (lineno))
+		exit(0) 

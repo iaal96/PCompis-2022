@@ -87,7 +87,6 @@ def p_assignment(t):
 			Error.type_mismatch_array_assignment(t.lexer.lineno)
 		if assign["rows"] != address["rows"] or assign["cols"] != address["cols"]:
 			Error.dimensions_do_not_match(t.lexer.lineno-1)
-			# Error class call
 		temp_quad = Quadruple("ARR=", assign, "_", address)
 		Quadruples.push_quad(temp_quad)
 	elif arrMatOperands.size() == 1:
@@ -101,6 +100,7 @@ def p_assignment(t):
 				address = operands.pop()
 				temp_quad = Quadruple("=", assign, "_", address)
 			else:
+				types.pop()
 				address = variableTable[currentScope][t[1]]["address"]
 				temp_quad = Quadruple("=", operands.pop(), '_', address)
 				operands.pop()
@@ -116,6 +116,7 @@ def p_assignment(t):
 				address = operands.pop()
 				temp_quad = Quadruple("=", assign, "_", address)
 			else:
+				types.pop()
 				address = variableTable["global"][t[1]]["address"]
 				temp_quad = Quadruple("=", operands.pop(), '_', address)
 				operands.pop()
@@ -401,7 +402,8 @@ def p_function(t):
 	addresses["lInt"] -= addresses["lInt"] % 1000
 	addresses["lFloat"] -= addresses["lFloat"] % 1000
 	addresses["lChar"] -= addresses["lChar"] % 1000
-	types.pop()
+	global returnMade
+	returnMade = False
 
 def p_param(t):
 	'''param : PDT ID addFuncParams functionParam
@@ -505,6 +507,8 @@ def p_addFuncToDir(t):
 		elif currentType == "char":
 			address = addresses["gChar"]
 			addresses["gChar"] += 1
+		else:
+			address = addresses["void"]
 		variableTable["global"][t[-1]]["address"] = address
 		# Cambiar scope al nuevo id de la funcion
 		currentScope = t[-1]
@@ -755,7 +759,8 @@ def p_evaluateTerm(t):
 					arrMatOperands.push({
 						"address": addresses[address_type],
 						"rows": lOp["rows"],
-						"cols": lOp["cols"]
+						"cols": lOp["cols"],
+						"type": resType
 					})
 					addresses[address_type] += lOp["rows"] * lOp["cols"]
 				else:
@@ -841,7 +846,8 @@ def p_evaluateFactor(t):
 					arrMatOperands.push({
 						"address": addresses[address_type],
 						"rows": lOp["rows"],
-						"cols": rOp["cols"]
+						"cols": rOp["cols"],
+						"type": resType
 					})
 					addresses[address_type] += lOp["rows"] * rOp["cols"]
 				types.push(resType)
@@ -894,11 +900,11 @@ def p_addRead(t):
 	'addRead : '
 	#Genera cuadruplo Read
 	if t[-2] in variableTable[currentScope]:
-		address = variableTable[currentScope][t[-1]]["address"]
+		address = variableTable[currentScope][t[-2]]["address"]
 		temp_quad = Quadruple("read", '_', '_', address)
 		Quadruples.push_quad(temp_quad)
 	elif t[-2] in variableTable["global"]:
-		address = variableTable["global"][t[-1]]["address"]
+		address = variableTable["global"][t[-2]]["address"]
 		temp_quad = Quadruple("read", '_', '_', address)
 		Quadruples.push_quad(temp_quad)
 	else:
@@ -923,12 +929,13 @@ def p_addPrintString(t):
 	'addPrintString : '
 	#Agrega string al cuadruplo print
 	address = 0
-	if t[-1] not in variableTable["constants"]:
-		variableTable["constants"][t[-1]] = {"address": addresses["cChar"]}
-		address = variableTable["constants"][t[-1]]["address"]
+	stringToPrint = t[-1][1:len(t[-1]) - 1]
+	if stringToPrint not in variableTable["constants"]:
+		variableTable["constants"][stringToPrint] = {"address": addresses["cChar"]}
+		address = variableTable["constants"][stringToPrint]["address"]
 		addresses["cChar"] += 1
 	else:
-		address = variableTable["constants"][t[-1]]["address"]
+		address = variableTable["constants"][stringToPrint]["address"]
 	temp_quad = Quadruple("print", '_', '_', address)
 	Quadruples.push_quad(temp_quad)
 
@@ -994,7 +1001,6 @@ def p_generateGosub(t):
 		operands.push(tmpAddress)
 		types.push(variableTable["global"][funcName]["type"])
 	operators.pop()
-	types.pop()
 
 
 #generateParam: Crea el cuadruplo PARAM con el opreando que esta siendo leido.
@@ -1074,13 +1080,16 @@ def p_readIDType(t):
 	operands.pop()
 	operators.push("Mat")
 	arrMatOperands.pop()
-	#TODO GLOBAL
-	if types.pop() != variableTable[currentScope][arrMatId.peek()]["type"]:
-		Error.type_mismatch(arrMatId.peek(), t.lexer.lineno)
-	if "rows" not in variableTable[currentScope][arrMatId.peek()]:
+	if arrMatId.peek() in variableTable[currentScope]:
+		if types.pop() != variableTable[currentScope][arrMatId.peek()]["type"]:
+			Error.type_mismatch(arrMatId.peek(), t.lexer.lineno)
+		if "rows" not in variableTable[currentScope][arrMatId.peek()]:
+			Error.variable_not_subscriptable_as_array(arrMatId.peek(), t.lexer.lineno)
+	elif arrMatId.peek() in variableTable["global"]:
+		if types.pop() != variableTable["global"][arrMatId.peek()]["type"]:
+			Error.type_mismatch(arrMatId.peek(), t.lexer.lineno)
 		if "rows" not in variableTable["global"][arrMatId.peek()]:
 			Error.variable_not_subscriptable_as_array(arrMatId.peek(), t.lexer.lineno)
-			# Error.not_subscriptable_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_verifyRows(t):
 	'verifyRows : '
@@ -1117,7 +1126,7 @@ def p_verifyCols(t):
 	#PENDIENTE ARRAYS GLOBAL/LOCAL MIX
 	if types.pop() != "int":
 		Error.type_mismatch_in_index(arrMatId.peek(),t.lexer.lineno)
-	# Formula de calcul de direccion al estilo C
+	# Formula de calculo de direccion al estilo C
 	constant_value = str(variableTable[arrMatScope.peek()][arrMatId.peek()]["rows"])
 	cstIntAddr = variableTable["constants"][constant_value]["address"]
 	tmp_quad = Quadruple("*", operands.pop(), cstIntAddr, addresses["tInt"])
@@ -1144,8 +1153,12 @@ def p_verifyCols(t):
 def p_checkMatAsArray(t):
 	'checkMatAsArray : '
 	global arrMatId
-	if "cols" in variableTable[currentScope][arrMatId.peek()]:
-		Error.matrix_accessed_as_array(arrMatId.peek(), t.lexer.lineno)
+	if arrMatId.peek() in variableTable[currentScope]:
+		if "cols" in variableTable[currentScope][arrMatId.peek()]:
+			Error.matrix_accessed_as_array(arrMatId.peek(), t.lexer.lineno)
+	elif arrMatId.peek() in variableTable["global"]:
+		if "cols" in variableTable["global"][arrMatId.peek()]:
+			Error.matrix_accessed_as_array(arrMatId.peek(), t.lexer.lineno)
 
 def p_statement(t):
 	'''statement : return checkVoidType
@@ -1164,9 +1177,13 @@ def p_checkVoidType(t):
 	global currentScope
 	if functionDir[currentScope]["type"] == "void":
 		Error.return_on_void_function(0, t.lexer.lineno)
-	else:
+	if types.pop() == functionDir[currentScope]["type"]:
 		tmp_quad = Quadruple("RETURN", "_", "_", operands.pop())
 		Quadruples.push_quad(tmp_quad)
+		global returnMade
+		returnMade = True
+	else:
+		Error.type_mismatch_on_return(t.lexer.lineno)
 
 def p_checkNonVoidType(t):
 	'checkNonVoidType : '

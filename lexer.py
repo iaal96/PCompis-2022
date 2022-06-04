@@ -103,11 +103,21 @@ def t_error(t):
     t.lexer.skip(1)
     exit(0)
 
-#def t_CST_CHAR(t):
- #   r'\'[a-zA-Z]\''
-  #  t.value = t.value
-   # return t
-
 lexer = lex.lex()
     
 lex.lex()
+
+# Print tokens for debugging
+'''
+import sys
+if len(sys.argv) > 1:
+	f = open(sys.argv[1], "r")
+else:
+	f = open("prog.txt", "r")
+program = f.read()
+lex.input(program)
+while 1:
+    tok = lex.token()
+    if not tok: break
+    print(tok)
+'''
