@@ -146,7 +146,7 @@ for i in ty:
                                          }
                                          ...
     }
-    "uno": {
+    "funcion_uno": {
         "type": "int",
         "params": Queue[int, int, float]
         "paramsLength": len(params)

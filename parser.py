@@ -11,26 +11,28 @@ arrMatScope = Stack()
 
 def p_program(t):
 	'program : PROGRAM ID globalTable SEMICOLON declaration programFunc main'
-	print("Compilacion exitosa")
+	#print("Compilacion exitosa")
 	# Mostrar variable table y directorio de funciones
-	# print()
-	# for i in functionDir:
-	# 	print("\tfunction name: %s" % i)
-	# 	print("\t\ttype: %s" % functionDir[i]["type"])
-	# 	print("\t\tvars: %s" % functionDir[i]["vars"])
-	# 	if "params" in functionDir[i]:
-	# 		print("\t\tparams: %s" % functionDir[i]["params"].values())
-	# 		print("\t\tparamsLength: %d" % functionDir[i]["paramsLength"])
-	# 		print("\t\tstart: %d" % functionDir[i]["start"])
-	# 		print("\t\tvarLength: %d" % functionDir[i]["varLength"])
-	# 	print()
+	'''print()
+	print(variableTable["constants"])
+	for i in functionDir:
+	 	print("\tfunction name: %s" % i)
+	 	print("\t\ttype: %s" % functionDir[i]["type"])
+	 	print("\t\tvars: %s" % functionDir[i]["vars"])
+	 	if "params" in functionDir[i]:
+	 		print("\t\tparams: %s" % functionDir[i]["params"].values())
+	 		print("\t\tparamsLength: %d" % functionDir[i]["paramsLength"])
+	 		print("\t\tstart: %d" % functionDir[i]["start"])
+	 		print("\t\tvarLength: %d" % functionDir[i]["varLength"])
+	 	print()'''
+	
 
 	#operands.print()
 	#types.print()
 	#operators.print()
-	#Quadruples.print_all()
+	Quadruples.print_all()
 	#variableTable.clear()
-	# arrMatOperands.print()
+	#arrMatOperands.print()
 
 #GlobalTable: Inicializar programa y crear variableTable
 def p_globalTable(t):
@@ -49,7 +51,7 @@ def p_globalTable(t):
 	Quadruples.push_jump(-1)
     
 def p_error(t):
-	Error.syntax(t.value, t.lexer.lineno)
+	'error : '
 
 def p_main(t):
 	'main : mainTable MAIN LEFTPAR RIGHTPAR LEFTBRACE declaration statement RIGHTBRACE'
@@ -371,7 +373,7 @@ def p_setRows(t):
 		types.pop()
 	else:
 		Error.array_size_must_be_positive(arrMatId.peek(), t.lexer.lineno)
-		# Error.non_positive_sized_array(arrMatId.peek(), t.lexer.lineno)
+
 
 def p_setCols(t):
 	'setCols : '
@@ -382,7 +384,7 @@ def p_setCols(t):
 		types.pop()
 	else:
 		Error.array_size_must_be_positive(arrMatId.peek(), t.lexer.lineno)
-		# Error.non_positive_sized_array(arrMatId.peek(), t.lexer.lineno)
+
 
 #function: Crea cuadruplo ENDFUNC y define tabla de variables locales.
 def p_function(t):
@@ -521,13 +523,9 @@ def p_addFuncToDir(t):
 		functionDir[currentScope]["params"] = Queue()
 
 def p_Expression2(t):
-    '''Expression2 : Expression3 evaluateExp2 Expression22 Expression2Nested
-                       | Expression3 opMatrix evaluateOpMatrix
-                       | Expression3 evaluateExp2'''
-
-def p_Expression2Nested(t):
-    '''Expression2Nested : Expression3 evaluateExp2 Expression22 Expression2Nested
-                             | Expression3 evaluateExp2'''
+    '''Expression2 : supExpression evaluateExp2 OperatorExpression2
+                       | supExpression opMatrix evaluateOpMatrix
+                       | supExpression evaluateExp2'''
 
 def p_evaluateOpMatrix(t):
 	'evaluateOpMatrix : '
@@ -638,23 +636,23 @@ def p_evaluateExp2(t):
 			else:
 				Error.operation_type_mismatch(t.lexer.lineno)
 
-def p_Expression22(t):
-    '''Expression22 : AND addOperator
+def p_OperatorExpression2(t):
+    '''OperatorExpression2 : AND addOperator
                     | OR addOperator'''
 
-def p_Expression3(t):
-    '''Expression3 : exp evaluateExp3 Expression33 exp evaluateExp3
-                       | exp evaluateExp3'''
+def p_supExpression(t):
+    '''supExpression : exp evaluatesupExp OperatorsupExpression exp evaluatesupExp
+                       | exp evaluatesupExp'''
 
-def p_Expression33(t):
-	'''Expression33 : GT addOperator
+def p_OperatorsupExpression(t):
+	'''OperatorsupExpression : GT addOperator
 						 | LT addOperator
 						 | NOTEQUAL addOperator 
 						 | ISEQUAL addOperator'''
 
-#evaluateExp3: Evalua operador y operandos de expresiones booleanas del tipo >, < , == , y <>.
-def p_evaluateExp3(t):
-	'evaluateExp3 : '
+#evaluatesupExp: Evalua operador y operandos de expresiones booleanas del tipo >, < , == , y <>.
+def p_evaluatesupExp(t):
+	'evaluatesupExp : '
 	if operators.size() != 0:
 		# Generar cuadruplos para operadores de comparacion
 		if operators.peek() == ">" or operators.peek() == "<" or operators.peek() == "<>" or operators.peek() == "==":

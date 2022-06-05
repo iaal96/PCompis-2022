@@ -695,4 +695,4 @@ def arrInverse(quad):
             elif arrType == 7:
                 tempMem.insertFloat(resultArray[j][arrayIterator], quad.result + memoryIterator)
                 memoryIterator += 1
-        arrayIterator += 1 
+        arrayIterator += 1
