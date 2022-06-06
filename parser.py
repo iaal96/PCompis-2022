@@ -30,7 +30,7 @@ def p_program(t):
 	#operands.print()
 	#types.print()
 	#operators.print()
-	Quadruples.print_all()
+	#Quadruples.print_all()
 	#variableTable.clear()
 	#arrMatOperands.print()
 
