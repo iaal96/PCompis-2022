@@ -93,7 +93,6 @@ def p_assignment(t):
 		Quadruples.push_quad(temp_quad)
 	elif arrMatOperands.size() == 1:
 		Error.invalid_assignment_to_array_variable(t.lexer.lineno-1)
-		# Error class call
 	elif t[1] in variableTable[currentScope]:
 		if types.pop() == variableTable[currentScope][t[1]]["type"]:
 			if "rows" in variableTable[currentScope][t[1]]:
@@ -270,10 +269,10 @@ def p_startLoop(t):
 	if result_type == "int":
 		res = operands.pop()
 		operator = "GOTOF"
-		# Generate Quadruple and push it to the list
+		# Generar Cuadruplo y hacerle push a la lista
 		tmp_quad = Quadruple(operator, res, "_", "_")
 		Quadruples.push_quad(tmp_quad)
-		# Push into jump stack
+		# Push al stack de saltos
 		Quadruples.push_jump(-1)
 	else :
 		Error.condition_type_mismatch(t.lexer.lineno)
@@ -391,8 +390,6 @@ def p_function(t):
 	'function : functionType ID addFuncToDir LEFTPAR param RIGHTPAR setParamLength LEFTBRACE declaration statement RIGHTBRACE'
     #Resetear scope a global cuando se salga del scope de la funcion, eliminar varTable y referenciar en functionDir
 	global currentScope
-    #del variableTable[currentScope]
-    #del functionDir[currentScope]["vars"]
 	# Crear cuadruplo endfuc para terminar funcion
 	temp_quad = Quadruple("ENDFUNC", "_", "_", "_")
 	Quadruples.push_quad(temp_quad)
@@ -715,7 +712,7 @@ def p_evaluateTerm(t):
 			if arrMatOperands.size() > 1:
 				rId = arrMatOperands.pop()
 				lId = arrMatOperands.pop()
-				# Validate equal dimensions
+				# Validar dimensiones 
 				if "cols" not in lId:
 					lId["cols"] = 1
 				if "cols" not in rId:
@@ -737,10 +734,8 @@ def p_evaluateTerm(t):
 					}
 				else:
 					Error.dimensions_do_not_match(t.lexer.lineno)
-					# Error class call
 			elif arrMatOperands.size() == 1:
 				Error.invalid_operation_in_line(t.lexer.lineno)
-				# Error class call
 			# Checar tipo de resultado y evaluar expresion
 			if resType != "error":
 				address_type = "t"
@@ -1121,7 +1116,6 @@ def p_verifyCols(t):
 	'verifyCols : '
 	if "cols" not in variableTable[arrMatScope.peek()][arrMatId.peek()]:
 		Error.variable_not_subscriptable_as_matrix(arrMatId, t.lexer.lineno)
-	#PENDIENTE ARRAYS GLOBAL/LOCAL MIX
 	if types.pop() != "int":
 		Error.type_mismatch_in_index(arrMatId.peek(),t.lexer.lineno)
 	# Formula de calculo de direccion al estilo C
@@ -1135,14 +1129,6 @@ def p_verifyCols(t):
 	Quadruples.push_quad(tmp_quad)
 	operands.push(addresses["tInt"])
 	addresses["tInt"] += 1
-	#[1, [4  [7, [10,
-	# 2,  5,  8,  11,
-	# 3], 6], 9], 12]
-	# Addre = [0,1,2,3,4,5,6,7,8,9,10,11]
-	# Datos = [1,2,3,4,5,6,7,8,9,10,11,12]
-	#[2][2] => 9 => address = 8 
-	#[1][0] => 8 => address = 7
-	# 1st + 2nd * rows
 	baseAdd = variableTable[currentScope][arrMatId.peek()]["address"]
 	upperLim = baseAdd + variableTable[currentScope][arrMatId.peek()]["rows"] * variableTable[currentScope][arrMatId.peek()]["cols"] - 1
 	tmp_quad = Quadruple("VERIFY", operands.peek(), baseAdd, upperLim)
